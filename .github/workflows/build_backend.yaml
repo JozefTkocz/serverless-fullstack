@@ -1,0 +1,42 @@
+# Backend lint
+# Backend test
+
+# Docker login to ECR
+# Docker build
+# Docker push
+
+# Frontend lint
+# Frontend test
+
+# Frontend deploy
+
+# Backend deploy
+#  - test backend
+#  - build & push Docker image
+#  - update aws lambda tag
+#  - (maybe delete the old one?)
+
+name: Build Backend
+run-name: backend-build-${{ github.actor }}
+on: [push]
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: checkout
+        uses: actions/checkout@v4
+      - 
+        name: Login to ECR
+        uses: docker/login-action@v3
+        with: 
+          registry: <aws-account-number>.dkr.ecr.<region>.amazonaws.com
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - 
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with: 
+          context: "{{defaultContext}}:mysubdir"
+          push: true
+          tags: user/app:latest
