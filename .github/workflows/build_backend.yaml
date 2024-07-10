@@ -30,12 +30,12 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: $AWS_REGION
+          aws-region: ${{env.AWS_REGION}}
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
       - 
         name: Build and push lambda
         run: |
-          make build_and_push_docker_image region=$AWS_REGION account_id=${{secrets.ACCOUNT_ID}} name=tumpr-backend build_no=${{github.run_id}} aws_ecr_repository=${{secrets.account_id}}.dkr.ecr.$region.amazonaws.com/tumpr-dev-image-repository
+          make build_and_push_docker_image region=$AWS_REGION account_id=${{secrets.ACCOUNT_ID}} name=tumpr-backend build_no=${{github.run_id}} aws_ecr_repository=${{secrets.account_id}}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com/tumpr-dev-image-repository
 
 

@@ -35,7 +35,6 @@ push_empty_container: get_image_uri
 	docker push ${image_uri}:latest;
 
 # Composite target to initialize the ECR repository and push an empty container
-
 initialise_ecr: | setup_ecr docker_login push_empty_container
 
 # =============================================================================
