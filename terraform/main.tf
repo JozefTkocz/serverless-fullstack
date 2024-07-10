@@ -13,11 +13,28 @@ provider "aws" {
   region = "us-west-2"
 }
 
-module "backend" {
-  source = "./backend"
+module "lambda" {
+  source = "./lambda"
 
   app_name = "tumpr"
   env      = "dev"
+  lambda_name = "backend"
+}
+
+module "dummy" {
+  source = "./lambda"
+
+  app_name = "tumpr"
+  env      = "dev"
+  lambda_name = "dummy"
+}
+
+module "another" {
+  source = "./lambda"
+
+  app_name = "tumpr"
+  env      = "dev"
+  lambda_name = "another"
 }
 
 # s3 bucket for remote state

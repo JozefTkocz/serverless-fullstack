@@ -5,3 +5,7 @@ variable "env" {
 variable "app_name" {
   type = string
 }
+
+variable "lambda_name" {
+  type = string
+}

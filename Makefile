@@ -1,6 +1,8 @@
 TERRAFORM_DIR := ./terraform
 BACKEND_DIR := ./backend-api
 
+LAMBDAS = lambda dummy another
+
 # =============================================================================
 # Docker Container Registry
 # =============================================================================
@@ -22,11 +24,11 @@ docker_login:
 
 # Target to set up the ECR repository using Terraform
 setup_ecr:
-	cd $(TERRAFORM_DIR) && terraform apply -target="module.backend.aws_ecr_repository.image_storage"
+	cd $(TERRAFORM_DIR) && terraform apply -target="module.${lambda_name}.aws_ecr_repository.lambda_image"
 
 # Target to get the image URI from Terraform outputs
 get_ecr_url:
-	$(eval image_uri := $(shell cd $(TERRAFORM_DIR) && terraform output -raw ecr_uri))
+	$(eval ecr_url := $(shell cd $(TERRAFORM_DIR) && terraform output -raw ${lambda_name}_ecr_url))
 
 # Target to build and push an empty container (alpine) to the ECR repository
 push_empty_container: get_ecr_url
@@ -36,6 +38,12 @@ push_empty_container: get_ecr_url
 
 # Composite target to initialize the ECR repository and push an empty container
 initialise_ecr: | setup_ecr docker_login push_empty_container
+
+# Iterate over all defined lambda functions and initialise them
+initialise_all_ecrs:
+	@for lambda in $(LAMBDAS); do \
+		$(MAKE) initialise_ecr lambda_name=$$lambda region=${region} account_id=${account_id}; \
+	done
 
 # =============================================================================
 # Docker
