@@ -13,29 +13,29 @@ provider "aws" {
   region = "us-west-2"
 }
 
-module "lambda" {
+module "backend_api" {
   source = "./lambda"
 
   app_name = "tumpr"
   env      = "dev"
-  lambda_name = "backend"
+  lambda_name = "backend_api"
 }
 
-module "dummy" {
+module "dummy_lambda" {
   source = "./lambda"
 
   app_name = "tumpr"
   env      = "dev"
-  lambda_name = "dummy"
+  lambda_name = "dummy_lambda"
 }
 
-module "another" {
-  source = "./lambda"
+# module "another" {
+#   source = "./lambda"
 
-  app_name = "tumpr"
-  env      = "dev"
-  lambda_name = "another"
-}
+#   app_name = "tumpr"
+#   env      = "dev"
+#   lambda_name = "another"
+# }
 
 # s3 bucket for remote state
 # lambda function for backend api

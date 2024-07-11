@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "lambda_image" {
-  name                 = "${local.lambda_name}"
+  name                 = local.lambda_name
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 
@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "iam_for_backend_lambda" {
-  name               = "${local.lambda_name}-role"
+  name               = local.lambda_name
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -32,18 +32,10 @@ resource "aws_iam_role" "iam_for_backend_lambda" {
 resource "aws_lambda_function" "api_backend_lambda" {
   # If the file is not in the current working directory you will need to include a
   # path.module in the filename.
-  function_name = "${local.lambda_name}"
+  function_name = local.lambda_name
   role          = aws_iam_role.iam_for_backend_lambda.arn
   package_type  = "Image"
 
   # uncomment after docker push 
   image_uri = "${aws_ecr_repository.lambda_image.repository_url}:latest"
 }
-
-# resource "aws_dynamo_db_table" "users" {
-
-# }
-
-# resource "aws_s3_bucket" "data" {
-
-# }

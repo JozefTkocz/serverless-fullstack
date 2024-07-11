@@ -1,7 +1,11 @@
-TERRAFORM_DIR := ./terraform
-BACKEND_DIR := ./backend-api
+# Make sure these match the inputs in Terraform
+APP_NAME := tumpr
+ENVIRONMENT := dev
 
-LAMBDAS = lambda dummy another
+TERRAFORM_DIR := ./terraform
+LAMBDAS_DIR := ./lambdas
+
+LAMBDAS = backend_api dummy_lambda
 
 # =============================================================================
 # Docker Container Registry
@@ -9,7 +13,10 @@ LAMBDAS = lambda dummy another
 
 # Login to AWS ECR
 docker_login:
-	@aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${account_id}.dkr.ecr.${region}.amazonaws.com
+	@aws ecr get-login-password \
+		--region ${region} | docker login \
+		--username AWS \
+		--password-stdin ${account_id}.dkr.ecr.${region}.amazonaws.com
 
 # =============================================================================
 # Terraform & IaC
@@ -24,7 +31,8 @@ docker_login:
 
 # Target to set up the ECR repository using Terraform
 setup_ecr:
-	cd $(TERRAFORM_DIR) && terraform apply -target="module.${lambda_name}.aws_ecr_repository.lambda_image"
+	cd $(TERRAFORM_DIR) &&\
+		terraform apply -target="module.${lambda_name}.aws_ecr_repository.lambda_image"
 
 # Target to get the image URI from Terraform outputs
 get_ecr_url:
@@ -49,13 +57,14 @@ initialise_all_ecrs:
 # Docker
 # =============================================================================
 build_image:
-	cd ${BACKEND_DIR} && docker build --platform linux/amd64 -t ${name}:${build_no} .
+	cd ${BACKEND_DIR}/${lambda_name} && \
+		docker build --platform linux/amd64 -t ${lambda_name}:${build_no} .
 
 tag_image:
-	docker tag ${name}:${build_no} ${ecr_url}:latest
+	docker tag ${lambda_name}:${build_no} ${account_id}.dkr.ecr.${region}.amazonaws.com/${lambda_name}:latest
 
 push_image:
-	docker push ${ecr_url}:latest
+	docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${name}:latest:latest
 
 build_and_push_docker_image: docker_login build_image tag_image push_image
 
@@ -64,6 +73,6 @@ build_and_push_docker_image: docker_login build_image tag_image push_image
 # =============================================================================
 update_lambda_with_latest_image:
 	aws lambda update-function-code \
-           --function-name ${function_name} \
-           --image-uri ${account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_name}:latest
+           --function-name ${lambda_name} \
+           --image-uri ${account_id}.dkr.ecr.${region}.amazonaws.com/${lambda_name}:latest
 

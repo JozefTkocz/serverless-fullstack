@@ -1,26 +1,12 @@
-# Backend lint
-# Backend test
-
-# Docker login to ECR
-# Docker build
-# Docker push
-
-# Frontend lint
-# Frontend test
-
-# Frontend deploy
-
-# Backend deploy
-#  - test backend
-#  - build & push Docker image
-#  - update aws lambda tag
-#  - (maybe delete the old one?)
-
+# todo: figure out how string interpolation works for matrix definition
 name: Build Backend
 run-name: backend-build-${{ github.actor }}
 on: [push]
 jobs:
   Build:
+    strategy: 
+      matrix:
+        lambda_name: ["tumpr-dev-backend_api", tumpr-dev-dummy_lambda] 
     runs-on: ubuntu-latest
     steps:
       - 
@@ -39,15 +25,14 @@ jobs:
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
             account_id=${{secrets.ACCOUNT_ID}} \
-            name=tumpr-backend build_no=${{github.run_id}} \
-            ecr_url=${{secrets.account_id}}.dkr.ecr.${{vars.AWS_REGION}}.amazonaws.com/tumpr-dev-image-repository
+            lambda_name=${{matrix.lambda_name}} \
+            build_no=${{github.run_id}}
       - 
         name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
-            function_name=tumpr-dev-backend-lambda \
+            lambda_name=${{matrix.lambda_name}} \
             account_id=${{secrets.account_id}} \
-            region=${{vars.AWS_REGION}} \
-            ecr_name=tumpr-dev-image-repository
+            region=${{vars.AWS_REGION}}
 
 

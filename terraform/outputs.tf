@@ -1,11 +1,7 @@
-output "lambda_ecr_url" {
-  value = module.lambda.ecr_url
+output "backend_api_ecr_url" {
+  value = module.backend_api.ecr_url
 }
 
-output "dummy_ecr_url" {
-  value = module.dummy.ecr_url
-}
-
-output "another_ecr_url" {
-  value = module.another.ecr_url
+output "dummy_lambda_ecr_url" {
+  value = module.dummy_lambda.ecr_url
 }
