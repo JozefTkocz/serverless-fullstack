@@ -64,7 +64,7 @@ tag_image:
 	docker tag ${prefix}${lambda_name}:${build_no} ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest
 
 push_image:
-	docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest:latest
+	docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest
 
 build_and_push_docker_image: docker_login build_image tag_image push_image
 
