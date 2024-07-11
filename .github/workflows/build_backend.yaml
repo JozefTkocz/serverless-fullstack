@@ -1,4 +1,8 @@
 # todo: figure out how string interpolation works for matrix definition
+env: 
+  APP_NAME: tumpr
+  ENVIRONMENT: dev
+
 name: Build Backend
 run-name: backend-build-${{ github.actor }}
 on: [push]
@@ -6,7 +10,7 @@ jobs:
   Build:
     strategy: 
       matrix:
-        lambda_name: ["tumpr-dev-backend_api", tumpr-dev-dummy_lambda] 
+        lambda_name: ["backend_api", dummy_lambda] 
     runs-on: ubuntu-latest
     steps:
       - 
@@ -25,13 +29,13 @@ jobs:
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
             account_id=${{secrets.ACCOUNT_ID}} \
-            lambda_name=${{matrix.lambda_name}} \
+            lambda_name=${{env.APP_NAME}}-${{env.ENVIRONMENT}}-${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
       - 
         name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
-            lambda_name=${{matrix.lambda_name}} \
+            lambda_name=${{env.APP_NAME}}-${{env.ENVIRONMENT}}-${{matrix.lambda_name}} \
             account_id=${{secrets.account_id}} \
             region=${{vars.AWS_REGION}}
 
