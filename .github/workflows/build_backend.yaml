@@ -29,13 +29,15 @@ jobs:
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
             account_id=${{secrets.ACCOUNT_ID}} \
+            prefix=${{env.APP_NAME}}-${{env.ENVIRONMENT}}- \
             lambda_name=${{env.APP_NAME}}-${{env.ENVIRONMENT}}-${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
       - 
         name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
-            lambda_name=${{env.APP_NAME}}-${{env.ENVIRONMENT}}-${{matrix.lambda_name}} \
+            prefix=${{env.APP_NAME}}-${{env.ENVIRONMENT}}- \
+            lambda_name=${{matrix.lambda_name}} \
             account_id=${{secrets.account_id}} \
             region=${{vars.AWS_REGION}}
 

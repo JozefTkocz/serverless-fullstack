@@ -58,13 +58,13 @@ initialise_all_ecrs:
 # =============================================================================
 build_image:
 	cd ${BACKEND_DIR}/${lambda_name} && \
-		docker build --platform linux/amd64 -t ${lambda_name}:${build_no} .
+		docker build --platform linux/amd64 -t ${prefix}${lambda_name}:${build_no} .
 
 tag_image:
-	docker tag ${lambda_name}:${build_no} ${account_id}.dkr.ecr.${region}.amazonaws.com/${lambda_name}:latest
+	docker tag ${prefix}${lambda_name}:${build_no} ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest
 
 push_image:
-	docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${name}:latest:latest
+	docker push ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest:latest
 
 build_and_push_docker_image: docker_login build_image tag_image push_image
 
@@ -73,6 +73,6 @@ build_and_push_docker_image: docker_login build_image tag_image push_image
 # =============================================================================
 update_lambda_with_latest_image:
 	aws lambda update-function-code \
-           --function-name ${lambda_name} \
-           --image-uri ${account_id}.dkr.ecr.${region}.amazonaws.com/${lambda_name}:latest
+           --function-name ${prefix}${lambda_name} \
+           --image-uri ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest
 
