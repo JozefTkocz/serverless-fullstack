@@ -30,7 +30,7 @@ jobs:
             region=${{vars.AWS_REGION}} \
             account_id=${{secrets.ACCOUNT_ID}} \
             prefix=${{env.APP_NAME}}-${{env.ENVIRONMENT}}- \
-            lambda_name=${{env.APP_NAME}}-${{env.ENVIRONMENT}}-${{matrix.lambda_name}} \
+            lambda_name=${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
       - 
         name: Update Lambda function
