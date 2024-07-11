@@ -57,7 +57,7 @@ initialise_all_ecrs:
 # Docker
 # =============================================================================
 build_image:
-	cd ${BACKEND_DIR}/${lambda_name} && \
+	cd ${LAMBDAS_DIR}/${lambda_name} && \
 		docker build --platform linux/amd64 -t ${prefix}${lambda_name}:${build_no} .
 
 tag_image:
