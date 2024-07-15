@@ -36,6 +36,7 @@ jobs:
         poetry run mypy
 
   Build:
+    needs: Lint
     strategy:
       matrix:
         lambda_name: ["backend_api", dummy_lambda]
