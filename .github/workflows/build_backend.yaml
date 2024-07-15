@@ -10,8 +10,9 @@ jobs:
   Lint:
     runs-on:
       ubuntu-latest
-    env:
-      working-directory: ./lambdas
+    defaults:
+      run:
+        working-directory: ./lambdas
     steps:
     -
       name: checkout
