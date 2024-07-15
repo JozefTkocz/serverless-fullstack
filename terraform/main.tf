@@ -16,16 +16,16 @@ provider "aws" {
 module "backend_api" {
   source = "./lambda"
 
-  app_name = "tumpr"
-  env      = "dev"
+  app_name    = "tumpr"
+  env         = "dev"
   lambda_name = "backend_api"
 }
 
 module "dummy_lambda" {
   source = "./lambda"
 
-  app_name = "tumpr"
-  env      = "dev"
+  app_name    = "tumpr"
+  env         = "dev"
   lambda_name = "dummy_lambda"
 }
 
