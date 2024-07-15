@@ -13,3 +13,5 @@ add lambda module to main tf
 add lambda name to main tf outputs
 add lambda to list of lambda names to iterate through in makefike
 add lambda to list of lambda names to iterate through in ci
+
+install pre-commit
