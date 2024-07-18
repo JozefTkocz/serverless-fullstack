@@ -34,8 +34,8 @@ jobs:
     -
       name: lint
       run: |
-        poetry run ruff check
-        poetry run ruff format
+        poetry run ruff check \
+        poetry run ruff format \
         poetry run mypy .
 
   DeployStaging:

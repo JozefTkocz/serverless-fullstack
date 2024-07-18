@@ -29,14 +29,6 @@ module "dummy_lambda" {
   lambda_name = "dummy_lambda"
 }
 
-# module "another" {
-#   source = "./lambda"
-
-#   app_name = "tumpr"
-#   env      = "dev"
-#   lambda_name = "another"
-# }
-
 # s3 bucket for remote state
 # lambda function for backend api
 # s3 bucket for frontend
