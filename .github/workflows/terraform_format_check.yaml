@@ -1,0 +1,19 @@
+name: Check Terraform
+run-name: backend-build-${{ github.actor }}
+on:
+    push:
+        paths:
+            - terraform/**
+jobs:
+  FormatCheck:
+    runs-on:
+      ubuntu-latest
+    steps:
+    -
+      name: checkout
+      uses: actions/checkout@v4
+    -
+      name: Terraform fmt
+      uses: dflook/terraform-fmt-check@v1
+      with:
+        path: ./terraform
