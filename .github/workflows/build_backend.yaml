@@ -1,7 +1,5 @@
-# todo: figure out how string interpolation works for matrix definition
 env:
   APP_NAME: tumpr
-  ENVIRONMENT: dev
 
 name: Build Backend
 run-name: backend-build-${{ github.actor }}
@@ -36,11 +34,12 @@ jobs:
         poetry run ruff format
         poetry run mypy .
 
-  Build:
+  DeployStaging:
+    if:
     needs: Lint
     strategy:
       matrix:
-        lambda_name: ["backend_api", dummy_lambda]
+        lambda_name: ["backend_api", "dummy_lambda"]
     runs-on: ubuntu-latest
     steps:
       -
@@ -59,14 +58,53 @@ jobs:
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
             account_id=${{secrets.ACCOUNT_ID}} \
-            prefix=${{env.APP_NAME}}-${{env.ENVIRONMENT}}- \
+            prefix=${{env.APP_NAME}}-staging- \
             lambda_name=${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
       -
         name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
-            prefix=${{env.APP_NAME}}-${{env.ENVIRONMENT}}- \
+            prefix=${{env.APP_NAME}}-staging- \
+            lambda_name=${{matrix.lambda_name}} \
+            account_id=${{secrets.account_id}} \
+            region=${{vars.AWS_REGION}}
+
+  # todo: see if there is a way to DRY this
+  DeployProduction:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs:
+      - Lint
+      - DeployStaging
+    strategy:
+      matrix:
+        lambda_name: ["backend_api", "dummy_lambda"]
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: checkout
+        uses: actions/checkout@v4
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{vars.AWS_REGION}}
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+      -
+        name: Build and push Docker image
+        run: |
+          make build_and_push_docker_image \
+            region=${{vars.AWS_REGION}} \
+            account_id=${{secrets.ACCOUNT_ID}} \
+            prefix=${{env.APP_NAME}}-production- \
+            lambda_name=${{matrix.lambda_name}} \
+            build_no=${{github.run_id}}
+      -
+        name: Update Lambda function
+        run: |
+          make update_lambda_with_latest_image \
+            prefix=${{env.APP_NAME}}-production- \
             lambda_name=${{matrix.lambda_name}} \
             account_id=${{secrets.account_id}} \
             region=${{vars.AWS_REGION}}

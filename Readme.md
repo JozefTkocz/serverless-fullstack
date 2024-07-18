@@ -15,3 +15,8 @@ add lambda to list of lambda names to iterate through in makefike
 add lambda to list of lambda names to iterate through in ci
 
 install pre-commit
+
+make and initialise tf workspaces for staging and production
+make init ECR to set up the ECRs ahead of making lambda functions
+terraform apply
+do in both workspaces

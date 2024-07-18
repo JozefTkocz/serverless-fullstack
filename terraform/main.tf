@@ -17,7 +17,7 @@ module "backend_api" {
   source = "./lambda"
 
   app_name    = "tumpr"
-  env         = "dev"
+  env         = terraform.workspace
   lambda_name = "backend_api"
 }
 
@@ -25,7 +25,7 @@ module "dummy_lambda" {
   source = "./lambda"
 
   app_name    = "tumpr"
-  env         = "dev"
+  env         = terraform.workspace
   lambda_name = "dummy_lambda"
 }
 
