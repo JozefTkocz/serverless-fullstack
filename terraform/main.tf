@@ -25,7 +25,7 @@ module "dummy_lambda" {
   source = "./lambda"
 
   app_name    = "tumpr"
-  env         = terraform.workspace
+  env = terraform.workspace
   lambda_name = "dummy_lambda"
 }
 

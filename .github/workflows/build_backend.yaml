@@ -15,8 +15,12 @@ jobs:
     -
       name: checkout
       uses: actions/checkout@v4
+    - name: Terraform fmt
+      uses: dflook/terraform-fmt-check@v1
+      with:
+        path: ./terraform
     -
-      name: Set up python
+      name: Set up Python
       id: setup-python
       uses: actions/setup-python@v5
       with:
