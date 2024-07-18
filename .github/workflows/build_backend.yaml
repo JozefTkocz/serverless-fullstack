@@ -45,7 +45,7 @@ jobs:
       run: poetry run pytest ./backend_api
     -
       name: Unit Test Dummy
-      run: poetry run pytest ./dummy_lamdba
+      run: poetry run pytest ./dummy_lambda
 
 
 
