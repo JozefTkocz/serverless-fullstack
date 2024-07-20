@@ -60,3 +60,8 @@ resource "aws_lambda_function" "api_backend_lambda" {
   # uncomment after docker push
   image_uri = "${aws_ecr_repository.lambda_image.repository_url}:latest"
 }
+
+resource "aws_lambda_function_url" "api_backend_lambda" {
+  function_name      = aws_lambda_function.api_backend_lambda.function_name
+  authorization_type = "NONE"
+}

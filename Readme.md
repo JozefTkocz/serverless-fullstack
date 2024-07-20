@@ -20,3 +20,15 @@ make and initialise tf workspaces for staging and production
 make init ECR to set up the ECRs ahead of making lambda functions
 terraform apply
 do in both workspaces
+
+
+todos:
+ - add a dynamo db table behind backend API
+ - CRUD updates to dynamodb from the lambda
+ - make a lambda function URL (or API gateway?)
+ - Investigate SQLlite in S3 for more relational data
+ - make a frontend
+ - build and deploy frontend to S3
+ - User sign-ins using AWS SES?
+ - Terraform remote state
+ - Document/readme

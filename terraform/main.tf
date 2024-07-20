@@ -29,8 +29,21 @@ module "dummy_lambda" {
   lambda_name = "dummy_lambda"
 }
 
-# s3 bucket for remote state
-# lambda function for backend api
-# s3 bucket for frontend
-# dynamodb table for backend api transactions
-# s3 bucket for append only sqllite
+resource "aws_dynamodb_table" "users" {
+  name = "Users"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "UserId"
+
+  attribute {
+    name = "UserId"
+    type = "S"
+  }
+}
+
+module "users_table_permissions" {
+  source = "./dynamodb_permissions"
+
+  dyanamodb_arn = aws_dynamodb_table.users.arn
+  iam_role = module.backend_api.lambda_function_iam.name
+  policy_name = "${module.backend_api.name}-dynamodb-policy"
+}
