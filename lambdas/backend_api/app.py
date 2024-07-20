@@ -12,6 +12,10 @@ app = LambdaFunctionUrlResolver()
 dynamodb = boto3.client("dynamodb", region_name="us-west-2")
 
 
+def testing(a: str) -> int:
+    return a
+
+
 @app.get("/todos")
 @tracer.capture_method
 def get_todos():
