@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./lambdas/${{matrix.lambda_name}}
+        working-directory: lambdas/${{matrix.lambda_name}}
     steps:
       -
         name: Set up Python
