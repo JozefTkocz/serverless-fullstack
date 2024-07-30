@@ -37,22 +37,39 @@ jobs:
     -
       name: Python format check
       run : poetry run ruff format
-    -
-      name: Backend type check
-      run: cd ./backend_api && poetry run mypy .
-    -
-      name: Dummy type check
-      run: cd ./dummy_lambda && poetry run mypy .
-    # todo: figure out a way of doing this better (make script?)
-    -
-      name: Unit Test Backend
-      run: poetry run pytest ./backend_api
-    -
-      name: Unit Test Dummy
-      run: poetry run pytest ./dummy_lambda
+
+  Test:
+    needs: Lint
+    strategy:
+      matrix:
+        lambda_name: ["backend_api", "dummy_lambda"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./lambdas/${{matrix.lambda_name}}
+    steps:
+      -
+        name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      -
+        name: Install Poetry
+        uses: snok/install-poetry@v1
+      -
+        name: install dependencies
+        run: poetry install --no-interaction
+      -
+        name: Type Check
+        run: poetry run mypy .
+      -
+        name: Unit Test
+        run: poetry run pytest .
 
   DeployStaging:
-    needs: Lint
+    needs:
+      - Test
     strategy:
       matrix:
         lambda_name: ["backend_api", "dummy_lambda"]
