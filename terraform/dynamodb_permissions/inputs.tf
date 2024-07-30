@@ -1,11 +1,11 @@
 variable "dyanamodb_arn" {
-    type=  string
+  type = string
 }
 
 variable "iam_role" {
-    type = string
+  type = string
 }
 
 variable "policy_name" {
-    type = string
+  type = string
 }

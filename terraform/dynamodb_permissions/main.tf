@@ -2,16 +2,16 @@
 data "aws_iam_policy_document" "lambda_policy_document" {
   statement {
     actions = [
-        "dynamodb:BatchGetItem",
-        "dynamodb:BatchWriteItem",
-        "dynamodb:ConditionCheckItem",
-        "dynamodb:PutItem",
-        "dynamodb:DescribeTable",
-        "dynamodb:DeleteItem",
-        "dynamodb:GetItem",
-        "dynamodb:Scan",
-        "dynamodb:Query",
-        "dynamodb:UpdateItem"
+      "dynamodb:BatchGetItem",
+      "dynamodb:BatchWriteItem",
+      "dynamodb:ConditionCheckItem",
+      "dynamodb:PutItem",
+      "dynamodb:DescribeTable",
+      "dynamodb:DeleteItem",
+      "dynamodb:GetItem",
+      "dynamodb:Scan",
+      "dynamodb:Query",
+      "dynamodb:UpdateItem"
     ]
     resources = [
       var.dyanamodb_arn
@@ -20,8 +20,8 @@ data "aws_iam_policy_document" "lambda_policy_document" {
 }
 
 resource "aws_iam_policy" "dynamodb_lambda_policy" {
-  name        = var.policy_name
-  policy      = data.aws_iam_policy_document.lambda_policy_document.json
+  name   = var.policy_name
+  policy = data.aws_iam_policy_document.lambda_policy_document.json
 }
 
 # Attach the policy to an IAM role

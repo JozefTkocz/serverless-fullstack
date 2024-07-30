@@ -30,9 +30,9 @@ module "dummy_lambda" {
 }
 
 resource "aws_dynamodb_table" "users" {
-  name = "Users"
+  name         = "Users"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "UserId"
+  hash_key     = "UserId"
 
   attribute {
     name = "UserId"
@@ -44,6 +44,6 @@ module "users_table_permissions" {
   source = "./dynamodb_permissions"
 
   dyanamodb_arn = aws_dynamodb_table.users.arn
-  iam_role = module.backend_api.lambda_function_iam.name
-  policy_name = "${module.backend_api.name}-dynamodb-policy"
+  iam_role      = module.backend_api.lambda_function_iam.name
+  policy_name   = "${module.backend_api.name}-dynamodb-policy"
 }
