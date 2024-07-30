@@ -44,9 +44,6 @@ jobs:
       matrix:
         lambda_name: ["backend_api", "dummy_lambda"]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: lambdas/${{matrix.lambda_name}}
     steps:
       -
         name: Set up Python
@@ -59,13 +56,13 @@ jobs:
         uses: snok/install-poetry@v1
       -
         name: install dependencies
-        run: poetry install --no-interaction
+        run: cd ./lambdas/${{matrix.lambda_name}} && poetry install --no-interaction
       -
         name: Type Check
-        run: poetry run mypy .
+        run: cd ./lambdas/${{matrix.lambda_name}} && poetry run mypy .
       -
         name: Unit Test
-        run: poetry run pytest .
+        run: cd ./lambdas/${{matrix.lambda_name}} && poetry run pytest .
 
   DeployStaging:
     needs:
