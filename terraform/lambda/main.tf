@@ -31,6 +31,11 @@ resource "aws_ecr_lifecycle_policy" "lambda_image" {
   EOF
 }
 
+resource "aws_iam_role_policy_attachment" "basic" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.iam_for_backend_lambda.name
+}
+
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"

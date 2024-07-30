@@ -1,17 +1,18 @@
-FROM public.ecr.aws/lambda/python:3.12
+FROM public.ecr.aws/lambda/python:3.10
 
-RUN python3 -m venv .venv
-RUN .venv/bin/pip install -U pip setuptools
-RUN .venv/bin/pip install poetry
+# Install the package manager
+ENV POETRY_VERSION=1.4.0
+RUN pip install "poetry==$POETRY_VERSION"
 
-# Copy requirements.txt
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# Install dependencies
 COPY poetry.lock pyproject.toml ${LAMBDA_TASK_ROOT}
+RUN poetry config virtualenvs.create false
+RUN poetry install --only main --no-interaction --no-ansi
 
-# Install the specified packages
-RUN .venv/bin/poetry install
-
-# Copy function code
+# Copy application code
 COPY . ${LAMBDA_TASK_ROOT}
 
-# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
+# Set the CMD to your handler
 CMD [ "app.handler" ]
