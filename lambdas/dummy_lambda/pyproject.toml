@@ -12,6 +12,9 @@ aws-lambda-powertools = "^2.40.1"
 requests = "^2.32.3"
 
 
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
