@@ -39,10 +39,10 @@ jobs:
       run : poetry run ruff format
     -
       name: Backend type check
-      run: poetry run mypy ./backend_api
+      run: cd ./backend_api && poetry run mypy .
     -
       name: Dummy type check
-      run: poetry run mypy ./dummy_lambda
+      run: cd ./dummy_lambda && poetry run mypy .
     # todo: figure out a way of doing this better (make script?)
     -
       name: Unit Test Backend
