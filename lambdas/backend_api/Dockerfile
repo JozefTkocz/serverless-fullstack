@@ -15,4 +15,4 @@ RUN poetry install --only main --no-interaction --no-ansi
 COPY . ${LAMBDA_TASK_ROOT}
 
 # Set the CMD to your handler
-CMD [ "app.handler" ]
+CMD [ "app.lambda_handler" ]
