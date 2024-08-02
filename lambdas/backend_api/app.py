@@ -16,7 +16,7 @@ dynamodb = boto3.client("dynamodb", region_name="us-west-2")
 @tracer.capture_method
 def get_todos():
     dynamodb.put_item(
-        TableName="YourTableName",
+        TableName="Users",
         Item={
             "UserId": {"S": "example"},
         },
