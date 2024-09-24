@@ -30,6 +30,7 @@ module "dummy_lambda" {
 }
 
 resource "aws_dynamodb_table" "users" {
+  // todo: staging and production tables
   name         = "Users"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "UserId"
@@ -46,4 +47,17 @@ module "users_table_permissions" {
   dyanamodb_arn = aws_dynamodb_table.users.arn
   iam_role      = module.backend_api.lambda_function_iam.name
   policy_name   = "${module.backend_api.name}-dynamodb-policy"
+}
+
+// todo: staging and production topics
+resource "aws_sns_topic" "user_updates" {
+  name = "user-notifications-topic"
+}
+
+module "sns_topic_permissions" {
+  source = "./sns"
+
+  sns_arn     = aws_sns_topic.user_updates.arn
+  iam_role    = module.backend_api.lambda_function_iam.name
+  policy_name = "${module.backend_api.name}-sns-policy"
 }

@@ -20,10 +20,10 @@ docker_login:
 
 # =============================================================================
 # Terraform & IaC
-# 
-# When creating a container image-based lambda function for the first time, 
+#
+# When creating a container image-based lambda function for the first time,
 # the ECR must first contain an image. The following targets are used to:
-# - apply the ECR defined in the backend Terraform (without building any other 
+# - apply the ECR defined in the backend Terraform (without building any other
 # infrastructure)
 # - build and push a dummy container to the ECR
 # This allows a later Terraform apply to create the lambda function
@@ -53,6 +53,10 @@ initialise_all_ecrs:
 		$(MAKE) initialise_ecr lambda_name=$$lambda region=${region} account_id=${account_id}; \
 	done
 
+outputs_to_env:
+	cd $(TERRAFORM_DIR) && \
+	terraform output >> ../lambdas/resources.env
+
 # =============================================================================
 # Docker
 # =============================================================================
@@ -75,4 +79,3 @@ update_lambda_with_latest_image:
 	aws lambda update-function-code \
            --function-name ${prefix}${lambda_name} \
            --image-uri ${account_id}.dkr.ecr.${region}.amazonaws.com/${prefix}${lambda_name}:latest
-
