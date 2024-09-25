@@ -6,7 +6,10 @@ data "aws_iam_policy_document" "sns_publish_policy" {
     effect = "Allow"
 
     actions = [
-      "sns:Publish"
+      "sns:Publish",
+      "sns:Subscribe",
+      "sns:GetTopicAttributes",
+      "sns:ListSubscriptionsByTopic"
     ]
 
     resources = [

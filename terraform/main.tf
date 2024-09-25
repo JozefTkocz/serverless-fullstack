@@ -55,7 +55,7 @@ resource "aws_sns_topic" "user_updates" {
 }
 
 module "sns_topic_permissions" {
-  source = "./sns"
+  source = "./sns_permissions"
 
   sns_arn     = aws_sns_topic.user_updates.arn
   iam_role    = module.backend_api.lambda_function_iam.name
