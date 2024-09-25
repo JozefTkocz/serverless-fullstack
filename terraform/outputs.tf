@@ -13,3 +13,7 @@ output "backend_api_url" {
 output "dummy_url" {
   value = module.dummy_lambda.function_url
 }
+
+output "user_notifications_sns_arn" {
+  value = aws_sns_topic.user_updates.arn
+}

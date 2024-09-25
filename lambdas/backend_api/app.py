@@ -6,24 +6,25 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class ApplicationSettings(BaseSettings):
+    uer_notifications_sns_arn: str = Field(
+        validation_alias="user_notifications_sns_arn"
+    )
+    model_config = SettingsConfigDict(
+        env_file="resources.env", env_file_encoding="utf-8", extra="ignore"
+    )
+
+
+app_settings = ApplicationSettings()
 
 
 class User(BaseModel):
     email: str = Field(alias="UserId")
     name: str
 
-
-# class UsersRepository:
-#     table_name = "Users"
-
-#     def __init__(self, dynamo_db):
-#         self.dynamo_db = boto3.client("dynamodb", region_name="us-west-2")
-
-#     def save(user: User):
-#         user.model_dump()
-
-#     def get(id: str):
-#         pass
 
 tracer = Tracer()
 logger = Logger()
@@ -47,13 +48,17 @@ def get_todos():
 @app.get("/subs")
 @tracer.capture_method
 def subscribe():
-    _ = sns.subscribe(
-        TopicArn="string",
-        Protocol="string",
-        Endpoint="string",
+    logger.info("subscribing to sns topic")
+    response = sns.subscribe(
+        TopicArn=app_settings.uer_notifications_sns_arn,
+        Protocol="email",
+        Endpoint="jozeftkocz@gmail.com",
+        # todo: set filter policy to only email this subscriber when a value is set
         Attributes={"string": "string"},
-        ReturnSubscriptionArn=True | False,
+        ReturnSubscriptionArn=False,
     )
+    logger.info("subscribed")
+    logger.info(response)
 
 
 # You can continue to use other utilities just as before

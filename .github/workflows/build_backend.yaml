@@ -13,8 +13,9 @@ jobs:
     runs-on:
       ubuntu-latest
     defaults:
+      # todo: DRY this to work with multiple lambdas
       run:
-        working-directory: ./lambdas
+        working-directory: ./lambdas/backend_api
     steps:
     -
       name: checkout
