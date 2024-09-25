@@ -54,7 +54,7 @@ def subscribe():
         Protocol="email",
         Endpoint="jozeftkocz@gmail.com",
         # todo: set filter policy to only email this subscriber when a value is set
-        Attributes={"string": "string"},
+        # Attributes={"string": "string"},
         ReturnSubscriptionArn=False,
     )
     logger.info("subscribed")
