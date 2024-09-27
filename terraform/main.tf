@@ -61,3 +61,11 @@ module "sns_topic_permissions" {
   iam_role    = module.backend_api.lambda_function_iam.name
   policy_name = "${module.backend_api.name}-sns-policy"
 }
+
+// a static S3 website for the UI
+module "frontend_ui" {
+  source = "./user_interface"
+
+  app_name = "tumpr"
+  env      = "terraform.workspace"
+}

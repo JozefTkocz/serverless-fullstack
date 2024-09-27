@@ -41,3 +41,6 @@
 **/.venv
 *.pyc
 *.cpython
+
+# Frontend (Typescript/vite) gitignore
+**/*.tsbuildinfo

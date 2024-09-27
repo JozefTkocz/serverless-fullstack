@@ -66,3 +66,37 @@ def subscribe():
 @tracer.capture_lambda_handler
 def lambda_handler(event: dict, context: LambdaContext) -> dict:
     return app.resolve(event, context)
+
+
+"""
+Endpoints I need:
+ - subscribe to SNS
+ - send credentials
+ - get my data
+
+ User model:
+  - email
+  - name
+  - JWT stuff (password hash, expiry, roles)
+  - my data
+  - SNS subscription
+
+Email sender:
+ - sends an email, with message attribute
+ - message attribute is email address
+ - user subscription filter policy matches email address
+
+Figure out how to serve frontend from an S3 bucket
+Terraform module for frontend app
+User registration flow
+
+It would be nice to have for the backend:
+ - somewhere for shared code to go
+ - the ability to write lambdas in other languages (golang)
+
+DRY the CI
+
+More robust environment management in Terraform
+
+Automatic repopulation of config files for backend/frontend
+"""
