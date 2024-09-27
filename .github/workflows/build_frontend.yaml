@@ -35,6 +35,8 @@ jobs:
     -
       name: Install node dependencies
       uses: bahmutov/npm-install@v1
+      with:
+          working-directory: frontend
     -
      name: build
      run: |

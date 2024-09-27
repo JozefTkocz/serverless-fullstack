@@ -48,5 +48,5 @@ resource "aws_s3_bucket_public_access_block" "allow_public_access" {
   ignore_public_acls      = false
   restrict_public_buckets = false
 
-  depends_on = [ aws_s3_bucket_policy.allow_public_access ]
+  depends_on = [aws_s3_bucket_policy.allow_public_access]
 }
