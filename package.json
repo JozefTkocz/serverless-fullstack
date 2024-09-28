@@ -1,0 +1,19 @@
+{
+    "name": "my-awesome-package",
+    "version": "1.0.0",
+    "author": "Your Name <email@example.com> (http://example.com)",
+    "devDependencies": {
+        "husky": "^8.0.0",
+        "lint-staged": "^15.2.10"
+    },
+    "scripts": {
+        "prepare": "husky install"
+    },
+    "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "npm run lint:fix",
+      "npm run format:fix"
+    ],
+    "*.js": "eslint --cache --fix"
+  }
+}
