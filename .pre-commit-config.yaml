@@ -23,3 +23,9 @@ repos:
     entry: bash -c 'cd frontend && exec npx run format:fix'
     pass_filenames: false
     files: ^frontend/
+  - id: eslint
+    name: eslint
+    language: system
+    entry: bash -c 'cd frontend && exec npx run lint:fix'
+    pass_filenames: false
+    files: ^frontend/
