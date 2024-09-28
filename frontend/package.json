@@ -13,10 +13,11 @@
     "preview": "vite preview"
   },
   "lint-staged": {
-        "src/**/*.{ts,tsx}": [
-            "npm run lint:fix",
-            "npm run format:fix"
-        ],
+    "src/**/*.{ts,tsx}": [
+        "npm run lint:fix",
+        "npm run format:fix"
+    ]
+  },
   "dependencies": {
     "prettier": "^3.3.3",
     "react": "^18.3.1",
