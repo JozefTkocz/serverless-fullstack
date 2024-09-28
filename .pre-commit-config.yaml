@@ -17,12 +17,14 @@ repos:
     # NPM
 - repo: local
   hooks:
+    # Run the Typescript autoformatter
   - id: prettier
     name: prettier
     language: system
     entry: bash -c 'cd frontend && exec npx run format:fix'
     pass_filenames: false
     files: ^frontend/
+    # Run Typescript linting
   - id: eslint
     name: eslint
     language: system
