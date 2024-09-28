@@ -11,14 +11,6 @@
     "format:check": "prettier . --check",
     "format:fix": "prettier . --fix",
     "preview": "vite preview",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "src/**/*.{ts,tsx}": [
-      "npm run lint:fix",
-      "npm run format:fix"
-    ],
-    "*.js": "eslint --cache --fix"
   },
   "dependencies": {
     "prettier": "^3.3.3",
