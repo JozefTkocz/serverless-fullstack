@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix",
     "format:check": "prettier . --check",
     "format:fix": "prettier . --fix",
-    "preview": "vite preview",
+    "preview": "vite preview"
   },
   "dependencies": {
     "prettier": "^3.3.3",
