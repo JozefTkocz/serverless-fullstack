@@ -44,3 +44,6 @@
 
 # Frontend (Typescript/vite) gitignore
 **/*.tsbuildinfo
+
+node_modules/
+.husky/

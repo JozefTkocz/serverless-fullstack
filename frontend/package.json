@@ -11,7 +11,7 @@
     "format:check": "prettier . --check",
     "format:fix": "prettier . --fix",
     "preview": "vite preview",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
