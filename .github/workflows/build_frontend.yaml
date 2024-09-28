@@ -38,6 +38,11 @@ jobs:
       with:
           working-directory: frontend
     -
+      name: Lint
+      run: |
+        npm run format:check
+        npm run lint:check
+    -
      name: build
      run: |
         npm run build
