@@ -40,7 +40,7 @@ class UsersTable:
         response: GetItemOutputTypeDef = self.client.get_item(
             TableName=self.table_name, Key={"UserId": {"S": email}}
         )
-        if not (user := response["Item"]):
+        if not (user := response.get("Item")):
             return None
         else:
             return User(email=str(user["UserId"]))
