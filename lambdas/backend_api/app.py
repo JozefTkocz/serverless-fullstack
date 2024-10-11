@@ -10,7 +10,7 @@ tracer = Tracer()
 logger = Logger()
 # todo: configure this to allow only the frontend site
 cors_config = CORSConfig(allow_origin="*", max_age=300)
-app = LambdaFunctionUrlResolver(cors=cors_config)
+app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
 
