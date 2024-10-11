@@ -43,4 +43,4 @@ class UsersTable:
         if not (user := response["Item"]):
             return None
         else:
-            return User(email=str(user["email"]))
+            return User(email=str(user["UserId"]))
