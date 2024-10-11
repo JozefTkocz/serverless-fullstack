@@ -47,10 +47,10 @@ function Login({
 }
 
 function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
-  const [userEmail, setUserEmal] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const handleSubmit = async () => {
     console.log(apiClient.url);
-    await apiClient.requestOtp(userEmail);
+    await apiClient.putSomethingInUsersTable(userEmail);
     setState(LoginState.NeedsPasscode);
   };
 
@@ -60,7 +60,7 @@ function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
         id="standard-basic"
         label="Email Address"
         variant="standard"
-        onChange={(e) => setUserEmal(e.target.value)}
+        onChange={(e) => setUserEmail(e.target.value)}
       />
       <Button variant="contained" onClick={() => handleSubmit()}>
         Get Login Code

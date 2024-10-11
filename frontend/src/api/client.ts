@@ -5,7 +5,7 @@ class ApiClient {
   client: AxiosInstance;
 
   constructor() {
-    this.url = process.env.BACKEND_API_URL;
+    this.url = process.env.BACKEND_API_URL || "";
     this.client = axios.create({
       baseURL: this.url,
     });
@@ -17,6 +17,11 @@ class ApiClient {
 
   async requestOtp(email: string) {
     return await this.post({ email: email });
+  }
+
+  async putSomethingInUsersTable(email: string) {
+    const response = await this.client.post("/auth/otp", { email: email });
+    console.log(response);
   }
 }
 
