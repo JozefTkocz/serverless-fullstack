@@ -2,7 +2,7 @@ import boto3
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from lambdas.backend_api.dynamodb.users import UsersTable
+from dynamodb.users import UsersTable
 
 
 class ApplicationSettings(BaseSettings):
