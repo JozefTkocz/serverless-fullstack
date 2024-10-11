@@ -78,12 +78,12 @@ function OneTimeCodeEntry({
   return <TextField id="standard-basic" label="Standard" variant="standard" />;
 }
 
-function Success(_: StateUpdater) {
+function Success(_: StateUpdater<LoginState>) {
   console.log("success");
   return <p>Some text</p>;
 }
 
-function Failed(_: StateUpdater) {
+function Failed(_: StateUpdater<LoginState>) {
   console.log("failed");
   return <p>Some text</p>;
 }

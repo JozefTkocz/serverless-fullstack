@@ -7,7 +7,13 @@
 
     // Recommended: Compiler complains about expressions implicitly typed as 'any'
     "noImplicitAny": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+
+    // for MUI
+    "lib": ["es6", "dom"],
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"], // which files to compile
   "exclude": ["node_modules"] // which files to skip
