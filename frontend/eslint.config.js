@@ -17,9 +17,9 @@ export default [
       "react/react-in-jsx-scope": "off",
       "react/jsx-no-target-blank": "off",
       "@typescript-eslint/no-unused-vars": [
-            "error",
-            { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-        ],
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
   eslintConfigPrettier,
