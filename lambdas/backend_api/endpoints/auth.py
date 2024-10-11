@@ -6,6 +6,7 @@ from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler.api_gateway import Router
 
 from config import users_table
+from lambdas.backend_api.dynamodb.users import User
 
 tracer = Tracer()
 router = Router()
@@ -25,6 +26,18 @@ class Otp(BaseModel):
 
 class OtpResponse(BaseModel):
     success: bool
+
+
+@router.post("/register")
+@tracer.capture_method
+def register(email: Email) -> User:
+    # send an OTP to the email address for this user, if they are registered
+    user = users_table.create(email=email.email)
+    if not user:
+        raise ValueError()
+    print(user)
+
+    return user
 
 
 @router.post("/otp")

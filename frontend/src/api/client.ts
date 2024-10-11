@@ -20,7 +20,7 @@ class ApiClient {
   }
 
   async putSomethingInUsersTable(email: string) {
-    const response = await this.client.post("/auth/otp", { email: email });
+    const response = await this.client.post("/auth/register", { email: email });
     console.log(response);
   }
 }
