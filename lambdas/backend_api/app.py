@@ -1,14 +1,16 @@
 import endpoints.auth
 
 from aws_lambda_powertools import Logger, Tracer
-from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver
+from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver, CORSConfig
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 
 tracer = Tracer()
 logger = Logger()
-app = LambdaFunctionUrlResolver()
+# todo: configure this to allow only the frontend site
+cors_config = CORSConfig(allow_origin="*", max_age=300)
+app = LambdaFunctionUrlResolver(cors=cors_config)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
 
