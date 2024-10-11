@@ -38,7 +38,7 @@ class UsersTable:
 
     def get(self, email: str) -> User | None:
         response: GetItemOutputTypeDef = self.client.get_item(
-            TableName=self.table_name, Key={"UserId": email}
+            TableName=self.table_name, Key={"UserId": {"S": email}}
         )
         if not (user := response["Item"]):
             return None
