@@ -27,7 +27,7 @@ class UsersTable:
         self.client.put_item(
             TableName="Users",
             Item={
-                "email": {"S": new_user.email},
+                "UserId": {"S": new_user.email},
                 "subscription_arn": {"S": new_user.email},
                 "otp": {"S": new_user.otp},
                 "auth_token": {"S": new_user.auth_token},
@@ -38,7 +38,7 @@ class UsersTable:
 
     def get(self, email: str) -> User | None:
         response: GetItemOutputTypeDef = self.client.get_item(
-            TableName=self.table_name, Key={"email": email}
+            TableName=self.table_name, Key={"UserId": email}
         )
         if not (user := response["Item"]):
             return None
