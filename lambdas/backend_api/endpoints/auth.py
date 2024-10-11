@@ -6,7 +6,7 @@ from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler.api_gateway import Router
 
 from config import users_table
-from lambdas.backend_api.dynamodb.users import User
+from dynamodb.users import User
 
 tracer = Tracer()
 router = Router()
