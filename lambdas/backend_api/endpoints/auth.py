@@ -83,6 +83,7 @@ def register(email: Email) -> bool:
 def request_otp(email: Email) -> bool:
     user = users_table.get(email.email)
     if not user:
+        logger.info(f"User {email} does not exist")
         return True
 
     now = dt.datetime.now(dt.timezone.utc)

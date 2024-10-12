@@ -58,7 +58,7 @@ class UsersTable:
         if not (user := response.get("Item")):
             return None
         else:
-            return User(email=str(user["UserId"]))
+            return self.item_to_user(user)
 
     def update(self, user: User) -> User:
         self.client.put_item(

@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useState } from "react";
 import { apiClient } from "../api/client";
 import { Typography } from "@mui/material";
@@ -7,6 +7,7 @@ import { DebouncedButton } from "../components/DebouncedButton";
 enum LoginState {
   NeedsEmail,
   NeedsPasscode,
+  NeedsAuth,
   Success,
   Failed,
 }
@@ -15,16 +16,28 @@ type StateUpdater<T> = (state: T) => void;
 
 export function LoginFlow() {
   const [state, setState] = useState(LoginState.NeedsEmail);
+  const [userEmail, setUserEmail] = useState("");
 
-  return <Login state={state} setState={setState} />;
+  return (
+    <Login
+      state={state}
+      setState={setState}
+      userEmail={userEmail}
+      setUserEmail={setUserEmail}
+    />
+  );
 }
 
 function Login({
   state,
   setState,
+  userEmail,
+  setUserEmail,
 }: {
   state: LoginState;
   setState: StateUpdater<LoginState>;
+  userEmail: string;
+  setUserEmail: StateUpdater<string>;
 }) {
   let component = <></>;
   switch (state) {
@@ -33,7 +46,11 @@ function Login({
       break;
     }
     case LoginState.NeedsPasscode: {
-      component = <OneTimeCodeEntry _setState={setState} />;
+      component = <RequestPasscode setState={setState} />;
+      break;
+    }
+    case LoginState.NeedsAuth: {
+      component = <EnterPasscode setState={setState} />;
       break;
     }
     case LoginState.Success: {
@@ -48,10 +65,17 @@ function Login({
   return component;
 }
 
-function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
-  const [userEmail, setUserEmail] = useState("");
+function EmailInput({
+  setState,
+  setUserEmail,
+}: {
+  setState: StateUpdater<LoginState>;
+  setUserEmail: StateUpdater<string>;
+}) {
+  const [inputText, setInputText] = useState("");
   const handleSubmit = async () => {
-    await apiClient.registerUser(userEmail);
+    await apiClient.registerUser(inputText);
+    setUserEmail(inputText);
     setState(LoginState.NeedsPasscode);
   };
 
@@ -64,7 +88,7 @@ function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
         id="standard-basic"
         label="Email Address"
         variant="standard"
-        onChange={(e) => setUserEmail(e.target.value)}
+        onChange={(e) => setInputText(e.target.value)}
       />
       <DebouncedButton variant="contained" onClick={() => handleSubmit()}>
         Click me!
@@ -73,19 +97,36 @@ function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
   );
 }
 
-function OneTimeCodeEntry({
-  _setState,
-}: {
-  _setState: StateUpdater<LoginState>;
-}) {
-  console.log("one time code");
+function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
   const requestOtp = async () => {
     await apiClient.requestOtp("jozeftkocz@gmail.com");
+    setState(LoginState.NeedsPasscode);
   };
   return (
-    <Button variant="contained" onClick={requestOtp}>
+    <DebouncedButton variant="contained" onClick={requestOtp}>
       Get Login Code
-    </Button>
+    </DebouncedButton>
+  );
+}
+
+function EnterPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
+  const [passCode, setPassCode] = useState("");
+  const sendLogin = async () => {
+    await apiClient.login(passCode);
+    setState(LoginState.NeedsPasscode);
+  };
+  return (
+    <>
+      <TextField
+        id="standard-basic"
+        label="Passcode"
+        variant="standard"
+        onChange={(e) => setPassCode(e.target.value)}
+      />
+      <DebouncedButton variant="contained" onClick={sendLogin}>
+        Login
+      </DebouncedButton>
+    </>
   );
 }
 
