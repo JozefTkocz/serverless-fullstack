@@ -42,7 +42,9 @@ function Login({
   let component = <></>;
   switch (state) {
     case LoginState.NeedsEmail: {
-      component = <EmailInput setState={setState} />;
+      component = (
+        <EmailInput setState={setState} setUserEmail={setUserEmail} />
+      );
       break;
     }
     case LoginState.NeedsPasscode: {
@@ -50,7 +52,7 @@ function Login({
       break;
     }
     case LoginState.NeedsAuth: {
-      component = <EnterPasscode setState={setState} />;
+      component = <EnterPasscode email={userEmail} setState={setState} />;
       break;
     }
     case LoginState.Success: {
@@ -109,10 +111,16 @@ function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
   );
 }
 
-function EnterPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
+function EnterPasscode({
+  email,
+  setState,
+}: {
+  email: string;
+  setState: StateUpdater<LoginState>;
+}) {
   const [passCode, setPassCode] = useState("");
   const sendLogin = async () => {
-    await apiClient.login(passCode);
+    await apiClient.login(email, passCode);
     setState(LoginState.NeedsPasscode);
   };
   return (
