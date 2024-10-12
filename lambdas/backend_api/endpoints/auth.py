@@ -109,7 +109,7 @@ def login(credentials: OtpCredentials) -> OtpResponse:
     if not user:
         return OtpResponse(success=False)
 
-    if user.otp == credentials.otp and now < user.otp_expires:
+    if user.otp == credentials.otp and now > user.otp_expires:
         return OtpResponse(success=False)
 
     # Figure out how to set JWT auth cookie

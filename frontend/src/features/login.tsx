@@ -102,7 +102,7 @@ function EmailInput({
 function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
   const requestOtp = async () => {
     await apiClient.requestOtp("jozeftkocz@gmail.com");
-    setState(LoginState.NeedsPasscode);
+    setState(LoginState.NeedsAuth);
   };
   return (
     <DebouncedButton variant="contained" onClick={requestOtp}>
