@@ -3,10 +3,11 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from dynamodb.users import UsersTable
+from email_client.client import EmailClient
 
 
 class ApplicationSettings(BaseSettings):
-    uer_notifications_sns_arn: str = Field(
+    user_notifications_sns_arn: str = Field(
         validation_alias="user_notifications_sns_arn"
     )
     model_config = SettingsConfigDict(
@@ -21,3 +22,4 @@ dynamodb = boto3.client("dynamodb", region_name="us-west-2")
 sns = boto3.client("sns", region_name="us-west-2")
 
 users_table = UsersTable(dynamodb, "Users")
+email_client = EmailClient(sns=sns, topic=app_settings.user_notifications_sns_arn)

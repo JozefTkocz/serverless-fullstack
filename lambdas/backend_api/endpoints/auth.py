@@ -5,7 +5,7 @@ import string
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler.api_gateway import Router
 
-from config import users_table
+from config import users_table, email_client
 from dynamodb.users import User
 
 tracer = Tracer()
@@ -28,16 +28,51 @@ class OtpResponse(BaseModel):
     success: bool
 
 
+"""
+Sign up:
+ - user submits email
+ - SNS sends email to user
+ - User confirms email
+ - Poll for confirmation
+ - If confirmed, send otp & login as normal
+ - If not confirmed, delete
+
+ Login:
+ - user submits email
+ - send otp
+ - user enters otp
+ - server responds with credentials
+
+"""
+
+
 @router.post("/register")
 @tracer.capture_method
-def register(email: Email) -> User:
-    # send an OTP to the email address for this user, if they are registered
-    user = users_table.create(email=email.email)
-    if not user:
-        raise ValueError()
-    print(user)
+def register(email: Email) -> User | None:
+    """
+    Create the user if they dont exist
+    If they have been created, send the subscription email
+    """
+    user = None
+    try:
+        user = users_table.create(email=email.email)
+    except ValueError:
+        user = users_table.get(email.email)
 
+    # Send the confirmation email
+    if user and not user.subscription_arn:
+        response = email_client.register_email(email.email)
+    print(response)
+    # Return the ARN
     return user
+
+
+# Check ARN
+def check_arn():
+    # Check if the subscription ARN exists
+    # If it does, update the user entity
+    # If it does not, blagh
+    pass
 
 
 @router.post("/otp")

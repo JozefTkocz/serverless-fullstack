@@ -49,7 +49,6 @@ function Login({
 function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
   const [userEmail, setUserEmail] = useState("");
   const handleSubmit = async () => {
-    console.log(apiClient.url);
     await apiClient.putSomethingInUsersTable(userEmail);
     setState(LoginState.NeedsPasscode);
   };

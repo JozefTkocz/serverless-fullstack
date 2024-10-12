@@ -19,6 +19,7 @@ class EmailClient:
             # todo: return and store the subscription ARN
             ReturnSubscriptionArn=False,
         )
+        print(response)
         return response
 
     def check_subscription(self, arn: str):
