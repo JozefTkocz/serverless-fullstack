@@ -1,13 +1,13 @@
-from typing import Annotated
 from pydantic import BaseModel
 import random
 import string
 
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler.api_gateway import Router
-from aws_lambda_powertools.event_handler.openapi.params import Path
 
 from config import users_table, email_client
+
+import datetime as dt
 
 tracer = Tracer()
 router = Router()
@@ -29,7 +29,8 @@ class SubscriptionConfirmationResponse(BaseModel):
     is_subscribed: bool
 
 
-class Otp(BaseModel):
+class OtpCredentials(BaseModel):
+    email: str
     otp: str
 
 
@@ -57,45 +58,59 @@ Sign up:
 
 @router.post("/register")
 @tracer.capture_method
-def register(email: Email) -> RegistrationResponse:
+def register(email: Email) -> bool:
     try:
         user = users_table.create(email=email.email)
         subscription_arn = email_client.register_email(email.email)
         user.subscription_arn = subscription_arn
         user = users_table.update(user)
-        return RegistrationResponse(subscription_arn=user.subscription_arn)
+        return True
 
     except ValueError:
-        existing_user = users_table.get(email.email)
-        return RegistrationResponse(
-            subscription_arn=user.subscription_arn if existing_user else ""
-        )
+        return True
 
 
-@router.get("/subscription/<arn>")
-@tracer.capture_method
-def check_arn(arn: Annotated[str, Path()]) -> SubscriptionConfirmationResponse:
-    is_subscribed = email_client.check_subscription(arn)
-    return SubscriptionConfirmationResponse(is_subscribed=is_subscribed)
+# @router.get("/subscription/<arn>")
+# @tracer.capture_method
+# def check_arn(arn: Annotated[str, Path()]) -> SubscriptionConfirmationResponse:
+#     is_subscribed = email_client.check_subscription(arn)
+#     return SubscriptionConfirmationResponse(is_subscribed=is_subscribed)
 
 
 @router.post("/otp")
 @tracer.capture_method
-def request_otp(email: Email) -> OtpResponse:
-    # send an OTP to the email address for this user, if they are registered
+def request_otp(email: Email) -> bool:
     user = users_table.get(email.email)
     if not user:
-        raise ValueError()
-    print(user)
+        return True
 
-    return OtpResponse(success=True)
+    now = dt.datetime.now(dt.timezone.utc)
+    in_fifteen_minutes = now + dt.timedelta(minutes=15)
+
+    otp = new_otp()
+    user.otp = otp
+    user.otp_expires = int(round(in_fifteen_minutes.timestamp()))
+
+    user = users_table.update(user)
+
+    email_client.send_email(email=user.email, body=otp)
+    return True
 
 
 @router.post("/login")
 @tracer.capture_method
-def login(otp: Otp) -> OtpResponse:
-    # If the supplied OTP matches what we see in the database, set the auth cookie
-    # Otherwise return a failure
+def login(credentials: OtpCredentials) -> OtpResponse:
+    now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
+
+    user = users_table.get(email=credentials.email)
+
+    if not user:
+        return OtpResponse(success=False)
+
+    if user.otp == credentials.otp and now < user.otp_expires:
+        return OtpResponse(success=False)
+
+    # Figure out how to set JWT auth cookie
     return OtpResponse(success=True)
 
 
