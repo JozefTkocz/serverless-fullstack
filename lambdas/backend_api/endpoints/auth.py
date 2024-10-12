@@ -113,6 +113,10 @@ def login(credentials: OtpCredentials) -> OtpResponse:
         return OtpResponse(success=False)
 
     # Figure out how to set JWT auth cookie
+    # Invalidate the OTP now it has been used
+    user.otp = ""
+    user.otp_expires = 0
+    users_table.update(user)
     return OtpResponse(success=True)
 
 
