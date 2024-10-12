@@ -2,12 +2,23 @@ from mypy_boto3_sns import SNSClient
 
 
 class EmailClient:
+    email_attribute = "email"
+
     def __init__(self, sns: SNSClient, topic: str):
         self.sns = sns
         self.topic = topic
 
-    def send_email(self, email: str, body: str):
-        pass
+    def send_email(self, email: str, subject: str, body: str):
+        # Send the email with the filter policy thing so only the specific users gets the email
+        response = self.sns.publish(
+            TopicArn=self.topic,
+            Message=body,
+            Subject=subject,
+            MessageAttributes={
+                self.email_attribute: {"DataType": "string", "StringValue": f"{email}"}
+            },
+        )
+        print(response)
 
     def register_email(self, email: str) -> str:
         """
@@ -20,9 +31,7 @@ class EmailClient:
             TopicArn=self.topic,
             Protocol="email",
             Endpoint=email,
-            # todo: set filter policy to only email this subscriber when a value is set
-            # Attributes={"string": "string"},
-            # todo: return and store the subscription ARN
+            Attributes={"FilterPolicy": f"{self.email_attribute: {email}}"},
             ReturnSubscriptionArn=True,
         )
         print(response)
