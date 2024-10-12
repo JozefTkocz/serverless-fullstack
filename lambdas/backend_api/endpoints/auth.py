@@ -5,6 +5,7 @@ import string
 import uuid
 
 from aws_lambda_powertools import Tracer, Logger
+from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 from aws_lambda_powertools.shared.cookies import Cookie
 from config import users_table, email_client
@@ -103,18 +104,26 @@ def request_otp(email: Email) -> bool:
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> Response:
+def login(credentials: OtpCredentials) -> Response[bool]:
     now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
 
     user = users_table.get(email=credentials.email)
 
     if not user:
         logger.info(f"User {credentials.email} not found")
-        return Response(status_code=HTTPStatus.UNAUTHORIZED.value)
+        return Response(
+            status_code=HTTPStatus.UNAUTHORIZED.value,
+            content_type=content_types.APPLICATION_JSON,
+            body=False,
+        )
 
     if user.otp == credentials.otp and now > user.otp_expires:
         logger.info(f"User {credentials.email} attempted login with invalid OTP")
-        return Response(status_code=HTTPStatus.UNAUTHORIZED.value)
+        return Response(
+            status_code=HTTPStatus.UNAUTHORIZED.value,
+            content_type=content_types.APPLICATION_JSON,
+            body=False,
+        )
 
     # Figure out how to set JWT auth cookie
     # Invalidate the OTP now it has been used
@@ -124,8 +133,10 @@ def login(credentials: OtpCredentials) -> Response:
     logger.info(f"User {credentials.email} authorised, setting token")
     return Response(
         status_code=HTTPStatus.OK.value,  # 200
+        content_type=content_types.APPLICATION_JSON,
         # todo: use an encrypted jwt
         cookies=[Cookie(name="session_id", value=str(uuid.uuid4()))],
+        body=True,
     )
 
 
