@@ -2,7 +2,7 @@ from pydantic import BaseModel
 import random
 import string
 
-from aws_lambda_powertools import Tracer
+from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler.api_gateway import Router
 
 from config import users_table, email_client
@@ -11,6 +11,7 @@ import datetime as dt
 
 tracer = Tracer()
 router = Router()
+logger = Logger()
 
 
 def new_otp() -> str:
@@ -92,8 +93,8 @@ def request_otp(email: Email) -> bool:
     user.otp_expires = int(round(in_fifteen_minutes.timestamp()))
 
     user = users_table.update(user)
-
-    email_client.send_email(email=user.email, body=otp)
+    logger.info("Sending OTP email")
+    email_client.send_email(email=user.email, subject="TUMPR OTP", body=otp)
     return True
 
 
