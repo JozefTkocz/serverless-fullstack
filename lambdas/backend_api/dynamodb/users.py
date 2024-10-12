@@ -61,9 +61,8 @@ class UsersTable:
             return User(email=str(user["UserId"]))
 
     def update(self, user: User) -> User:
-        self.client.update_item(
+        self.client.put_item(
             TableName=self.table_name,
-            Key=self.key(user.email),
-            AttributeUpdates=self.user_to_item(user),
+            Item=self.user_to_item(user),
         )
         return user

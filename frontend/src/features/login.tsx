@@ -1,6 +1,7 @@
 import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { apiClient } from "../api/client";
+import { Typography } from "@mui/material";
 
 enum LoginState {
   NeedsEmail,
@@ -49,12 +50,15 @@ function Login({
 function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
   const [userEmail, setUserEmail] = useState("");
   const handleSubmit = async () => {
-    await apiClient.putSomethingInUsersTable(userEmail);
+    await apiClient.registerUser(userEmail);
     setState(LoginState.NeedsPasscode);
   };
 
   return (
     <>
+      <Typography variant="body1" gutterBottom>
+        Enter some stuff in here.
+      </Typography>
       <TextField
         id="standard-basic"
         label="Email Address"
@@ -74,7 +78,14 @@ function OneTimeCodeEntry({
   _setState: StateUpdater<LoginState>;
 }) {
   console.log("one time code");
-  return <TextField id="standard-basic" label="Standard" variant="standard" />;
+  const requestOtp = async () => {
+    await apiClient.requestOtp("jozeftkocz@gmail.com");
+  };
+  return (
+    <Button variant="contained" onClick={requestOtp}>
+      Get Login Code
+    </Button>
+  );
 }
 
 function Success(_: StateUpdater<LoginState>) {

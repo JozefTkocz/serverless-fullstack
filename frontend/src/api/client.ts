@@ -15,12 +15,13 @@ class ApiClient {
     return await this.client.post(this.url, data, config);
   }
 
-  async requestOtp(email: string) {
-    return await this.post({ email: email });
+  async registerUser(email: string) {
+    const response = await this.client.post("/auth/register", { email: email });
+    console.log(response);
   }
 
-  async putSomethingInUsersTable(email: string) {
-    const response = await this.client.post("/auth/register", { email: email });
+  async requestOtp(email: string) {
+    const response = await this.client.post("/auth/otp", { email: email });
     console.log(response);
   }
 }
