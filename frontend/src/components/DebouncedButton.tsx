@@ -9,7 +9,7 @@ export function DebouncedButton({
 
   const { onClick } = props;
   const handleClick = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     setIsLoading(true);
     if (onClick) {
