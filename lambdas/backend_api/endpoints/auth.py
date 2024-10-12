@@ -1,12 +1,13 @@
+from typing import Annotated
 from pydantic import BaseModel
 import random
 import string
 
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler.api_gateway import Router
+from aws_lambda_powertools.event_handler.openapi.params import Path
 
 from config import users_table, email_client
-from dynamodb.users import User
 
 tracer = Tracer()
 router = Router()
@@ -18,6 +19,14 @@ def new_otp() -> str:
 
 class Email(BaseModel):
     email: str
+
+
+class RegistrationResponse(BaseModel):
+    subscription_arn: str
+
+
+class SubscriptionConfirmationResponse(BaseModel):
+    is_subscribed: bool
 
 
 class Otp(BaseModel):
@@ -48,31 +57,26 @@ Sign up:
 
 @router.post("/register")
 @tracer.capture_method
-def register(email: Email) -> User | None:
-    """
-    Create the user if they dont exist
-    If they have been created, send the subscription email
-    """
-    user = None
+def register(email: Email) -> RegistrationResponse:
     try:
         user = users_table.create(email=email.email)
+        subscription_arn = email_client.register_email(email.email)
+        user.subscription_arn = subscription_arn
+        user = users_table.update(user)
+        return RegistrationResponse(subscription_arn=user.subscription_arn)
+
     except ValueError:
-        user = users_table.get(email.email)
-
-    # Send the confirmation email
-    if user and not user.subscription_arn:
-        response = email_client.register_email(email.email)
-    print(response)
-    # Return the ARN
-    return user
+        existing_user = users_table.get(email.email)
+        return RegistrationResponse(
+            subscription_arn=user.subscription_arn if existing_user else ""
+        )
 
 
-# Check ARN
-def check_arn():
-    # Check if the subscription ARN exists
-    # If it does, update the user entity
-    # If it does not, blagh
-    pass
+@router.get("/subscription/<arn>")
+@tracer.capture_method
+def check_arn(arn: Annotated[str, Path()]) -> SubscriptionConfirmationResponse:
+    is_subscribed = email_client.check_subscription(arn)
+    return SubscriptionConfirmationResponse(is_subscribed=is_subscribed)
 
 
 @router.post("/otp")

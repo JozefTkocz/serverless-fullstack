@@ -9,7 +9,13 @@ class EmailClient:
     def send_email(self, email: str, body: str):
         pass
 
-    def register_email(self, email: str):
+    def register_email(self, email: str) -> str:
+        """
+        Sends the subscription confirmation email to the provided email.
+
+        Returns the SNS subscription ARN, so confirmation status can be
+        checked at a later time.
+        """
         response = self.sns.subscribe(
             TopicArn=self.topic,
             Protocol="email",
@@ -17,10 +23,14 @@ class EmailClient:
             # todo: set filter policy to only email this subscriber when a value is set
             # Attributes={"string": "string"},
             # todo: return and store the subscription ARN
-            ReturnSubscriptionArn=False,
+            ReturnSubscriptionArn=True,
         )
         print(response)
-        return response
+        return response["SubscriptionArn"]
 
-    def check_subscription(self, arn: str):
-        pass
+    def check_subscription(self, arn: str) -> bool:
+        """
+        Returns True if the subscription has been confirmed, otherwise False
+        """
+        response = self.sns.get_subscription_attributes(SubscriptionArn=arn)
+        return not response["Attributes"]["PendingConfirmation"]
