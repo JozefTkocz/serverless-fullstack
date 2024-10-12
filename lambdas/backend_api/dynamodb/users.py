@@ -22,12 +22,12 @@ class UsersTable:
 
     def item_to_user(self, item: dict) -> User:
         return User(
-            email=str(item["UserId"]),
-            subscription_arn=str(item["subscription_arn"]),
-            otp=str(item["otp"]),
-            otp_expires=int(item["otp_expires"]),
-            auth_token=str(item["auth_token"]),
-            auth_token_expires=int(item["auth_token_expires"]),
+            email=str(item["UserId"]["S"]),
+            subscription_arn=str(item["subscription_arn"]["S"]),
+            otp=str(item["otp"]["S"]),
+            otp_expires=int(item["otp_expires"]["N"]),
+            auth_token=str(item["auth_token"]["S"]),
+            auth_token_expires=int(item["auth_token_expires"]["N"]),
         )
 
     def user_to_item(self, user: User) -> dict:
