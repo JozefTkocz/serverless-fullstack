@@ -1,10 +1,12 @@
+from http import HTTPStatus
 from pydantic import BaseModel
 import random
 import string
+import uuid
 
 from aws_lambda_powertools import Tracer, Logger
-from aws_lambda_powertools.event_handler.api_gateway import Router
-
+from aws_lambda_powertools.event_handler.api_gateway import Router, Response
+from aws_lambda_powertools.shared.cookies import Cookie
 from config import users_table, email_client
 
 import datetime as dt
@@ -101,23 +103,30 @@ def request_otp(email: Email) -> bool:
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> OtpResponse:
+def login(credentials: OtpCredentials) -> Response:
     now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
 
     user = users_table.get(email=credentials.email)
 
     if not user:
-        return OtpResponse(success=False)
+        logger.info(f"User {credentials.email} not found")
+        return Response(status_code=HTTPStatus.UNAUTHORIZED.value)
 
     if user.otp == credentials.otp and now > user.otp_expires:
-        return OtpResponse(success=False)
+        logger.info(f"User {credentials.email} attempted login with invalid OTP")
+        return Response(status_code=HTTPStatus.UNAUTHORIZED.value)
 
     # Figure out how to set JWT auth cookie
     # Invalidate the OTP now it has been used
     user.otp = ""
     user.otp_expires = 0
     users_table.update(user)
-    return OtpResponse(success=True)
+    logger.info(f"User {credentials.email} authorised, setting token")
+    return Response(
+        status_code=HTTPStatus.OK.value,  # 200
+        # todo: use an encrypted jwt
+        cookies=[Cookie(name="session_id", value=str(uuid.uuid4()))],
+    )
 
 
 @router.get("/refresh")

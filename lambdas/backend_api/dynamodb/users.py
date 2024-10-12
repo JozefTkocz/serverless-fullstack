@@ -2,6 +2,8 @@ from mypy_boto3_dynamodb import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import GetItemOutputTypeDef
 from pydantic import BaseModel
 
+# todo: configure a secret key for token encryption
+
 
 class User(BaseModel):
     email: str
@@ -45,8 +47,6 @@ class UsersTable:
             raise ValueError("User already exists!")
 
         new_user = User(email=email)
-        print("user to item")
-        print(self.user_to_item(new_user))
         self.client.put_item(
             TableName=self.table_name,
             Item=self.user_to_item(new_user),
@@ -60,8 +60,6 @@ class UsersTable:
         if not (user := response.get("Item")):
             return None
         else:
-            print("getting")
-            print(user)
             return self.item_to_user(user)
 
     def update(self, user: User) -> User:
