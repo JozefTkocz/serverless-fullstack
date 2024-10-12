@@ -24,7 +24,10 @@ class ApiClient {
   }
 
   async login(email: string, passCode: string) {
-    const _ = await this.client.post("/auth/login", { email: email, otp: passCode });
+    const _ = await this.client.post("/auth/login", {
+      email: email,
+      otp: passCode,
+    });
   }
 }
 
