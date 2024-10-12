@@ -25,39 +25,9 @@ class Email(BaseModel):
     email: str
 
 
-class RegistrationResponse(BaseModel):
-    subscription_arn: str
-
-
-class SubscriptionConfirmationResponse(BaseModel):
-    is_subscribed: bool
-
-
 class OtpCredentials(BaseModel):
     email: str
     otp: str
-
-
-class OtpResponse(BaseModel):
-    success: bool
-
-
-"""
-Sign up:
- - user submits email
- - SNS sends email to user
- - User confirms email
- - Poll for confirmation
- - If confirmed, send otp & login as normal
- - If not confirmed, delete
-
- Login:
- - user submits email
- - send otp
- - user enters otp
- - server responds with credentials
-
-"""
 
 
 @router.post("/register")
@@ -72,13 +42,6 @@ def register(email: Email) -> bool:
 
     except ValueError:
         return True
-
-
-# @router.get("/subscription/<arn>")
-# @tracer.capture_method
-# def check_arn(arn: Annotated[str, Path()]) -> SubscriptionConfirmationResponse:
-#     is_subscribed = email_client.check_subscription(arn)
-#     return SubscriptionConfirmationResponse(is_subscribed=is_subscribed)
 
 
 @router.post("/otp")
@@ -117,7 +80,7 @@ def login(credentials: OtpCredentials) -> Response[bool]:
             body=False,
         )
 
-    if user.otp == credentials.otp and now > user.otp_expires:
+    if user.otp != credentials.otp or now > user.otp_expires:
         logger.info(f"User {credentials.email} attempted login with invalid OTP")
         return Response(
             status_code=HTTPStatus.UNAUTHORIZED.value,
@@ -142,13 +105,13 @@ def login(credentials: OtpCredentials) -> Response[bool]:
 
 @router.get("/refresh")
 @tracer.capture_method
-def refresh_login() -> OtpResponse:
+def refresh_login() -> bool:
     # If the user is logged in, reset the auth cookie
-    return OtpResponse(success=True)
+    return True
 
 
 @router.get("/logout")
 @tracer.capture_method
-def logout() -> OtpResponse:
+def logout() -> bool:
     # If the user is logged in, remove all auth from the db
-    return OtpResponse(success=True)
+    return True

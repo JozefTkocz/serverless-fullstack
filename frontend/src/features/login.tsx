@@ -120,8 +120,12 @@ function EnterPasscode({
 }) {
   const [passCode, setPassCode] = useState("");
   const sendLogin = async () => {
-    await apiClient.login(email, passCode);
-    setState(LoginState.NeedsPasscode);
+    const loggedIn: boolean = await apiClient.login(email, passCode);
+    if (loggedIn) {
+      setState(LoginState.Success);
+    } else {
+      setState(LoginState.Failed);
+    }
   };
   return (
     <>
@@ -140,10 +144,10 @@ function EnterPasscode({
 
 function Success(_: StateUpdater<LoginState>) {
   console.log("success");
-  return <p>Some text</p>;
+  return <p>Success</p>;
 }
 
 function Failed(_: StateUpdater<LoginState>) {
   console.log("failed");
-  return <p>Some text</p>;
+  return <p>Failure</p>;
 }
