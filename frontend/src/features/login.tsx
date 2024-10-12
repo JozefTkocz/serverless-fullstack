@@ -2,6 +2,7 @@ import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { apiClient } from "../api/client";
 import { Typography } from "@mui/material";
+import { DebouncedButton } from "../components/DebouncedButton";
 
 enum LoginState {
   NeedsEmail,
@@ -65,9 +66,9 @@ function EmailInput({ setState }: { setState: StateUpdater<LoginState> }) {
         variant="standard"
         onChange={(e) => setUserEmail(e.target.value)}
       />
-      <Button variant="contained" onClick={() => handleSubmit()}>
-        Get Login Code
-      </Button>
+      <DebouncedButton variant="contained" onClick={() => handleSubmit()}>
+        Click me!
+      </DebouncedButton>
     </>
   );
 }

@@ -16,6 +16,7 @@ export default [
       // suppress errors for missing 'import React' in files
       "react/react-in-jsx-scope": "off",
       "react/jsx-no-target-blank": "off",
+      "react/prop-types": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

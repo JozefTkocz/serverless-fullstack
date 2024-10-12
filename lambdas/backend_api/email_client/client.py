@@ -15,7 +15,7 @@ class EmailClient:
             Message=body,
             Subject=subject,
             MessageAttributes={
-                self.email_attribute: {"DataType": "string", "StringValue": f"{email}"}
+                self.email_attribute: {"DataType": "String", "StringValue": f"{email}"}
             },
         )
         print(response)
