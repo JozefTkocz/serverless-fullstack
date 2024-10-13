@@ -14,7 +14,12 @@ app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
 
+
 # todo: configure error handling properly
+@app.get("/")
+@tracer.capture_method
+def health() -> bool:
+    return True
 
 
 @logger.inject_lambda_context(correlation_id_path=correlation_paths.LAMBDA_FUNCTION_URL)

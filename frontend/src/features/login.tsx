@@ -3,6 +3,7 @@ import { useState } from "react";
 import { apiClient } from "../api/client";
 import { Typography } from "@mui/material";
 import { DebouncedButton } from "../components/DebouncedButton";
+// import { useQuery } from "@tanstack/react-query";
 
 enum LoginState {
   NeedsEmail,
@@ -121,6 +122,7 @@ function EnterPasscode({
   const [passCode, setPassCode] = useState("");
   const sendLogin = async () => {
     const loggedIn: boolean = await apiClient.login(email, passCode);
+    console.log(loggedIn);
     if (loggedIn) {
       setState(LoginState.Success);
     } else {

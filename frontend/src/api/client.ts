@@ -11,6 +11,10 @@ class ApiClient {
     });
   }
 
+  async healthCheck() {
+    return await this.client.get("/");
+  }
+
   async post(data?: object, config?: AxiosRequestConfig) {
     return await this.client.post(this.url, data, config);
   }
@@ -23,7 +27,7 @@ class ApiClient {
     const _ = await this.client.post("/auth/otp", { email: email });
   }
 
-  async login(email: string, passCode: string): boolean {
+  async login(email: string, passCode: string): Promise<boolean> {
     const result = await this.client.post("/auth/login", {
       email: email,
       otp: passCode,
