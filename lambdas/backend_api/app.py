@@ -6,7 +6,7 @@ from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver, CORSC
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel
-from io import StringIO
+from io import BytesIO
 import json
 
 
@@ -35,8 +35,8 @@ def health() -> bool:
 def script() -> bool:
     s3 = boto3.client("s3")
 
-    buffer = StringIO()
-    buffer.write(json.dumps({"key": "value"}))
+    buffer = BytesIO()
+    buffer.write(json.dumps({"key": "value"}).encode("utf-8"))
     buffer.seek(0)
     s3.upload_fileobj(Fileobj=buffer, Bucket="S3ObjectLock", Key="test")
 

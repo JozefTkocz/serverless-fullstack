@@ -8,6 +8,16 @@ terraform {
 
   required_version = ">= 1.2.0"
 }
+/*
+Todo:
+ - the terraform is a bit messy
+ - tidy up naming in IAM permissions modules
+ - possubly spin up a backend API module?
+ - make durable storage destroyable
+ - dynamodb lock and s3 in their own submodule
+ - everything should belong to an environment
+ - all necessary outputs to config file
+*/
 
 provider "aws" {
   region = "us-west-2"
