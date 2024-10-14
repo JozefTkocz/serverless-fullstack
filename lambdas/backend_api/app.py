@@ -38,7 +38,7 @@ def script() -> bool:
     buffer = BytesIO()
     buffer.write(json.dumps({"key": "value"}).encode("utf-8"))
     buffer.seek(0)
-    s3.upload_fileobj(Fileobj=buffer, Bucket="S3ObjectLock", Key="test")
+    s3.upload_fileobj(Fileobj=buffer, Bucket="tumpr-object-store", Key="test")
 
     return True
 

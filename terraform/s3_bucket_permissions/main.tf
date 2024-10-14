@@ -25,7 +25,7 @@ resource "aws_iam_policy" "s3_policy" {
 }
 
 # Attach the policy to an IAM role
-resource "aws_iam_role_policy_attachment" "policy_attachements" {
+resource "aws_iam_role_policy_attachment" "policy_attachement" {
   role       = var.iam_role
   policy_arn = aws_iam_policy.s3_policy.arn
 }

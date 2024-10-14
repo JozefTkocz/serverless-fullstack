@@ -1,5 +1,5 @@
 # Define a policy for read/write table access
-data "aws_iam_policy_document" "lambda_policy_document" {
+data "aws_iam_policy_document" "policy_document" {
   statement {
     actions = [
       "dynamodb:BatchGetItem",
@@ -21,11 +21,11 @@ data "aws_iam_policy_document" "lambda_policy_document" {
 
 resource "aws_iam_policy" "dynamodb_policy" {
   name   = var.policy_name
-  policy = data.aws_iam_policy_document.lambda_policy_document.json
+  policy = data.aws_iam_policy_document.policy_document.json
 }
 
 # Attach the policy to an IAM role
-resource "aws_iam_role_policy_attachment" "lambda_attachements" {
+resource "aws_iam_role_policy_attachment" "policy_attachements" {
   role       = var.iam_role
   policy_arn = aws_iam_policy.dynamodb_policy.arn
 }

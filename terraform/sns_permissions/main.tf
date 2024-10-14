@@ -18,13 +18,13 @@ data "aws_iam_policy_document" "sns_publish_policy" {
   }
 }
 
-resource "aws_iam_policy" "sns_lambda_policy" {
+resource "aws_iam_policy" "sns_policy" {
   name_prefix = var.policy_name
   policy      = data.aws_iam_policy_document.sns_publish_policy.json
 }
 
 # Attach the policy to an IAM role
-resource "aws_iam_role_policy_attachment" "lambda_attachements" {
+resource "aws_iam_role_policy_attachment" "policy_attachements" {
   role       = var.iam_role
-  policy_arn = aws_iam_policy.sns_lambda_policy.arn
+  policy_arn = aws_iam_policy.sns_policy.arn
 }
