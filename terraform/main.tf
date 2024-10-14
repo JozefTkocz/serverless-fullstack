@@ -69,3 +69,37 @@ module "frontend_ui" {
   app_name = "tumpr"
   env      = "terraform.workspace"
 }
+
+// an S3 bucket for persistent storage
+resource "aws_s3_bucket" "storage" {
+  bucket = "tumpr-object-store"
+}
+
+module "s3_object_store_permissions" {
+  source = "./s3_bucket_permissions"
+
+  s3_bucket_arn = aws_s3_bucket.storage.arn
+  iam_role      = module.backend_api.lambda_function_iam.name
+  policy_name   = "${module.backend_api.name}-s3-policy"
+}
+
+// a dynamoDb table for distributed locking of S3 objects
+resource "aws_dynamodb_table" "s3_object_lock" {
+  // todo: staging and production tables
+  name         = "S3ObjectLock"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "ObjectKey"
+
+  attribute {
+    name = "ObjectKey"
+    type = "S"
+  }
+}
+
+module "object_lock_table_permissions" {
+  source = "./dynamodb_permissions"
+
+  dyanamodb_arn = aws_dynamodb_table.users.arn
+  iam_role      = module.backend_api.lambda_function_iam.name
+  policy_name   = "S3ObjectLockPolicy"
+}

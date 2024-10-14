@@ -1,6 +1,5 @@
 resource "aws_s3_bucket" "static_website" {
   bucket = "${var.app_name}-${terraform.workspace}-ui"
-
 }
 
 resource "aws_s3_bucket_website_configuration" "static_website_config" {

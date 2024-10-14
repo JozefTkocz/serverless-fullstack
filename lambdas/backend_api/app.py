@@ -1,9 +1,17 @@
+import boto3
 import endpoints.auth
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver, CORSConfig
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
+from pydantic import BaseModel
+from io import StringIO
+import json
+
+
+class RuntimeSettings(BaseModel):
+    encryption_secret: str
 
 
 tracer = Tracer()
@@ -19,6 +27,19 @@ app.include_router(endpoints.auth.router, prefix="/auth")
 @app.get("/")
 @tracer.capture_method
 def health() -> bool:
+    return True
+
+
+@app.get("/script")
+@tracer.capture_method
+def script() -> bool:
+    s3 = boto3.client("s3")
+
+    buffer = StringIO()
+    buffer.write(json.dumps({"key": "value"}))
+    buffer.seek(0)
+    s3.upload_fileobj(Fileobj=buffer, Bucket="S3ObjectLock", Key="test")
+
     return True
 
 
