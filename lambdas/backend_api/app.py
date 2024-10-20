@@ -7,13 +7,12 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from io import BytesIO
 import json
-from config import app_settings
 
 
 tracer = Tracer()
 logger = Logger()
 cors_config = CORSConfig(
-    allow_origin=app_settings.frontend_api_url,
+    allow_origin="*",
     max_age=300,
 )
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
