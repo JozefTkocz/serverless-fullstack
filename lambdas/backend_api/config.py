@@ -16,7 +16,6 @@ class ApplicationSettings(BaseSettings):
     user_notifications_sns_arn: str = Field(
         validation_alias="user_notifications_sns_arn"
     )
-    frontend_api_url: str = Field(validation_alias="frontend_api_url")
     model_config = SettingsConfigDict(
         env_file="resources.env", env_file_encoding="utf-8", extra="ignore"
     )
