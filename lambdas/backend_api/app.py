@@ -13,7 +13,8 @@ from config import app_settings
 tracer = Tracer()
 logger = Logger()
 cors_config = CORSConfig(
-    allow_origin=app_settings.frontend_api_url, allow_credentials=True, max_age=300
+    allow_origin=app_settings.frontend_api_url,
+    max_age=300,
 )
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 

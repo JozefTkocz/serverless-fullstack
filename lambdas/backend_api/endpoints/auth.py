@@ -6,7 +6,6 @@ import string
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
-from aws_lambda_powertools.shared.cookies import Cookie
 from config import users_table, email_client, dynamic_config
 import jwt
 
@@ -38,6 +37,11 @@ class SessionToken(BaseModel):
 class SessionInfo(BaseModel):
     email: str
     message: str
+
+
+class AuthResponse(BaseModel):
+    auth_token: str
+    session_token: SessionInfo
 
 
 @router.post("/register")
@@ -77,7 +81,7 @@ def request_otp(email: Email) -> bool:
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> Response[bool]:
+def login(credentials: OtpCredentials) -> AuthResponse | Response:
     now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
 
     user = users_table.get(email=credentials.email)
@@ -114,16 +118,7 @@ def login(credentials: OtpCredentials) -> Response[bool]:
     encoded_jwt = jwt.encode(
         token_payload.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
     )
-    return Response(
-        status_code=HTTPStatus.OK.value,  # 200
-        content_type=content_types.APPLICATION_JSON,
-        # todo: use an encrypted jwt
-        cookies=[
-            Cookie(name="auth_token", value=encoded_jwt),
-            Cookie(name="session_token", value=session_token.model_dump_json()),
-        ],
-        body=True,
-    )
+    return AuthResponse(auth_token=encoded_jwt, session_token=session_token)
 
 
 @router.get("/check-login")
