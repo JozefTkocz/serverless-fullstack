@@ -1,11 +1,9 @@
-from http import HTTPStatus
 from pydantic import BaseModel
 import random
 import string
 
 from aws_lambda_powertools import Tracer, Logger
-from aws_lambda_powertools.event_handler import content_types
-from aws_lambda_powertools.event_handler.api_gateway import Router, Response
+from aws_lambda_powertools.event_handler.api_gateway import Router
 from config import users_table, email_client, dynamic_config
 import jwt
 
@@ -81,25 +79,27 @@ def request_otp(email: Email) -> bool:
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> AuthResponse | Response:
+def login(credentials: OtpCredentials) -> AuthResponse:
     now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
 
     user = users_table.get(email=credentials.email)
 
     if not user:
         logger.info(f"User {credentials.email} not found")
-        return Response(
-            status_code=HTTPStatus.UNAUTHORIZED.value,
-            content_type=content_types.APPLICATION_JSON,
-            body=False,
+        return AuthResponse(
+            auth_token="",
+            session_token=SessionInfo(
+                email=credentials.email, message="You are not logged in!"
+            ),
         )
 
     if user.otp != credentials.otp or now > user.otp_expires:
         logger.info(f"User {credentials.email} attempted login with invalid OTP")
-        return Response(
-            status_code=HTTPStatus.UNAUTHORIZED.value,
-            content_type=content_types.APPLICATION_JSON,
-            body=False,
+        return AuthResponse(
+            auth_token="",
+            session_token=SessionInfo(
+                email=user.email, message="You are not logged in!"
+            ),
         )
 
     # Figure out how to set JWT auth cookie
