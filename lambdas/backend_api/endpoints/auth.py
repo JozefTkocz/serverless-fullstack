@@ -2,13 +2,13 @@ from http import HTTPStatus
 from pydantic import BaseModel
 import random
 import string
-import uuid
 
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler import content_types
 from aws_lambda_powertools.event_handler.api_gateway import Router, Response
 from aws_lambda_powertools.shared.cookies import Cookie
-from config import users_table, email_client
+from config import users_table, email_client, dynamic_config
+import jwt
 
 import datetime as dt
 
@@ -28,6 +28,16 @@ class Email(BaseModel):
 class OtpCredentials(BaseModel):
     email: str
     otp: str
+
+
+class SessionToken(BaseModel):
+    email: str
+    message: str
+
+
+class SessionInfo(BaseModel):
+    email: str
+    message: str
 
 
 @router.post("/register")
@@ -94,20 +104,38 @@ def login(credentials: OtpCredentials) -> Response[bool]:
     user.otp_expires = 0
     users_table.update(user)
     logger.info(f"User {credentials.email} authorised, setting token")
+
+    token_payload = SessionToken(
+        email=user.email, message=f"Hello {user.email} -this is secret!"
+    )
+    session_token = SessionInfo(
+        email=user.email, message=f"Hello {user.email} -this isn't a secret!"
+    )
+    encoded_jwt = jwt.encode(
+        token_payload.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
+    )
     return Response(
         status_code=HTTPStatus.OK.value,  # 200
         content_type=content_types.APPLICATION_JSON,
         # todo: use an encrypted jwt
-        cookies=[Cookie(name="session_id", value=str(uuid.uuid4()))],
+        cookies=[
+            Cookie(name="auth_token", value=encoded_jwt),
+            Cookie(name="session_token", value=session_token.model_dump_json()),
+        ],
         body=True,
     )
 
 
-@router.get("/refresh")
+@router.get("/check-login")
 @tracer.capture_method
 def refresh_login() -> bool:
-    # If the user is logged in, reset the auth cookie
-    return True
+    headers = router.current_event.headers
+    print(headers)
+    print(
+        jwt.decode(
+            headers["auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
+        )
+    )
 
 
 @router.get("/logout")

@@ -1,20 +1,15 @@
-# Define a policy for read/write table access
 data "aws_iam_policy_document" "s3_policy_document" {
   statement {
     actions = [
-      "dynamodb:BatchGetItem",
-      "dynamodb:BatchWriteItem",
-      "dynamodb:ConditionCheckItem",
-      "dynamodb:PutItem",
-      "dynamodb:DescribeTable",
-      "dynamodb:DeleteItem",
-      "dynamodb:GetItem",
-      "dynamodb:Scan",
-      "dynamodb:Query",
-      "dynamodb:UpdateItem"
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetBucketLocation",
     ]
+    effect = "Allow"
     resources = [
-      var.s3_bucket_arn
+      "${var.s3_bucket_arn}/*",
+      var.s3_bucket_arn,
     ]
   }
 }

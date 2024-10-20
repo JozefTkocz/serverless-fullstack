@@ -26,8 +26,18 @@ app.include_router(endpoints.auth.router, prefix="/auth")
 # todo: configure error handling properly
 @app.get("/")
 @tracer.capture_method
-def health() -> bool:
+def health_check() -> bool:
     return True
+
+
+"""
+Todo:
+ - JSON config file in S3 (for e.g. JWT secrets)
+ - Logged in user from JWT
+ - Use dynamodb for distributed lock on S3 objects
+ - SQLite files in S3
+ - Database migrations on SQLite
+"""
 
 
 @app.get("/script")
