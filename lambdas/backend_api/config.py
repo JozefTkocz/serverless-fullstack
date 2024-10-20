@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from dynamodb.users import UsersTable
 from email_client.client import EmailClient
-from object_store.config import ConfigRepo
+from object_store.object_store import ConfigRepo
 
 RESET_DYNAMIC_CONFIG = True
 

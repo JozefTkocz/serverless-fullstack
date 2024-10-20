@@ -136,6 +136,7 @@ def refresh_login() -> bool:
             headers["auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
         )
     )
+    return True
 
 
 @router.get("/logout")
