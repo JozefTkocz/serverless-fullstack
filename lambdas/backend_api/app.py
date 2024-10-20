@@ -17,7 +17,7 @@ class RuntimeSettings(BaseModel):
 tracer = Tracer()
 logger = Logger()
 # todo: configure this to allow only the frontend site
-cors_config = CORSConfig(allow_origin="*", max_age=300)
+cors_config = CORSConfig(allow_origin="*", allow_credentials=True, max_age=300)
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")

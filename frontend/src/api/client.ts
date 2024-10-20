@@ -8,6 +8,7 @@ class ApiClient {
     this.url = process.env.BACKEND_API_URL || "";
     this.client = axios.create({
       baseURL: this.url,
+      withCredentials: true,
     });
   }
 
@@ -33,6 +34,11 @@ class ApiClient {
       otp: passCode,
     });
     return result.data;
+  }
+
+  async check() {
+    const result = await this.client.get("/auth/check-login");
+    console.log(result);
   }
 }
 
