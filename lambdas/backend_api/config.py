@@ -11,6 +11,7 @@ RESET_DYNAMIC_CONFIG = True
 
 
 # Read in env vars
+# todo: add in bucket name
 class ApplicationSettings(BaseSettings):
     user_notifications_sns_arn: str = Field(
         validation_alias="user_notifications_sns_arn"
@@ -31,7 +32,7 @@ users_table = UsersTable(dynamodb, "Users")
 email_client = EmailClient(sns=sns, topic=app_settings.user_notifications_sns_arn)
 
 # Read in/reset e.g. JWT secrets
-config_repo = ConfigRepo(s3)
+config_repo = ConfigRepo(s3, bucket_name="tumpr-object-store", config_file="test")
 
 if RESET_DYNAMIC_CONFIG:
     config_repo.set_secret(str(uuid.uuid4()))

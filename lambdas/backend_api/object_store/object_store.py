@@ -9,9 +9,9 @@ class AppConfig(BaseModel):
 
 
 class ConfigRepo:
-    def __init__(self, s3: S3Client):
-        self._bucket = ""
-        self._config_file = ""
+    def __init__(self, s3: S3Client, bucket_name: str, config_file: str):
+        self._bucket = bucket_name
+        self._config_file = config_file
         self._s3 = s3
 
     def get_config(self) -> AppConfig:
