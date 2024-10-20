@@ -5,19 +5,16 @@ from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.event_handler import LambdaFunctionUrlResolver, CORSConfig
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from pydantic import BaseModel
 from io import BytesIO
 import json
-
-
-class RuntimeSettings(BaseModel):
-    encryption_secret: str
+from config import app_settings
 
 
 tracer = Tracer()
 logger = Logger()
-# todo: configure this to allow only the frontend site
-cors_config = CORSConfig(allow_origin="*", allow_credentials=True, max_age=300)
+cors_config = CORSConfig(
+    allow_origin=app_settings.frontend_api_url, allow_credentials=True, max_age=300
+)
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
