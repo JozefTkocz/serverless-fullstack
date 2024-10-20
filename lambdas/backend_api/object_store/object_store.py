@@ -1,4 +1,4 @@
-from io import StringIO
+from io import BytesIO
 from pydantic import BaseModel
 from mypy_boto3_s3 import S3Client
 import json
@@ -19,8 +19,8 @@ class ConfigRepo:
         return AppConfig(**json.loads(config_json["Body"].read()))
 
     def set_secret(self, value: str):
-        buffer = StringIO()
+        buffer = BytesIO()
         config = AppConfig(jwt_secret=value)
-        buffer.write(config.model_dump_json())
+        buffer.write(config.model_dump_json().encode())
         buffer.seek(0)
         self._s3.upload_fileobj(Fileobj=buffer, Bucket="tumpr-object-store", Key="test")
