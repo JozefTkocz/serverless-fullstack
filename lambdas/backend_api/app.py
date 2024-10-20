@@ -18,7 +18,7 @@ app.include_router(endpoints.auth.router, prefix="/auth")
 
 
 # todo: configure error handling properly
-@app.get("/")
+@app.get("/", cors=False)
 @tracer.capture_method
 def health_check() -> bool:
     return True
