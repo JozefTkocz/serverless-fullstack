@@ -9,8 +9,8 @@ class ApiClient {
     this.client = axios.create({
       baseURL: this.url,
     });
-    this.client.defaults.headers.common["Authorization"] =
-      `Bearer ${localStorage.getItem("access_token")}`;
+    // this.client.defaults.headers.common["Authorization"] =
+    //   `Bearer ${localStorage.getItem("access_token")}`;
   }
 
   async healthCheck() {

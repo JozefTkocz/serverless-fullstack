@@ -11,10 +11,7 @@ import json
 
 tracer = Tracer()
 logger = Logger()
-cors_config = CORSConfig(
-    allow_origin="*",
-    max_age=300,
-)
+cors_config = CORSConfig(allow_origin="*", max_age=300)
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
