@@ -1,6 +1,5 @@
 import boto3
 from pydantic import BaseModel
-from requests import Response
 import endpoints.auth
 
 from aws_lambda_powertools import Logger, Tracer
@@ -8,6 +7,7 @@ from aws_lambda_powertools.event_handler import (
     LambdaFunctionUrlResolver,
     CORSConfig,
     content_types,
+    Response,
 )
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -34,7 +34,7 @@ def handle_error(ex: Exception) -> Response[Error]:  # receives exception raised
     return Response(
         status_code=400,
         content_type=content_types.TEXT_PLAIN,
-        body=Error(reason="something went wrong").model_dump_json(),
+        body=Error(reason="Something went wrong!"),
     )
 
 

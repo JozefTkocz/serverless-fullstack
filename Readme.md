@@ -11,6 +11,8 @@ and a static web app served from S3 for the frontend. The aim is to have:
 
 The motivation is mostly a way to cheaply host hobby projects and to have a platform to try out new tech.
 
+Why not Django/Rails? Why not [just use Postgres?](https://www.amazingcto.com/postgres-for-everything/) I'm cheap, and don't want to pay for an EC2 and/or RDS instance.
+
 ## Infrastructure
 
 In order to deploy the lambda function, first create an ECR with a dummy container image:
