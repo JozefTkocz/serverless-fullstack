@@ -8,7 +8,33 @@ resource "aws_ecr_repository" "lambda_image" {
   }
 }
 
-# todo: ECR lifestyle policy to clean up old images
+resource "aws_ecr_lifecycle_policy" "lambda_image" {
+  repository = aws_ecr_repository.lambda_image.name
+
+  policy = <<EOF
+  {
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Remove untagged images",
+            "selection": {
+                "tagStatus": "untagged",
+                "countType": "imageCountMoreThan",
+                "countNumber": 1
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+  EOF
+}
+
+resource "aws_iam_role_policy_attachment" "basic" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.iam_for_backend_lambda.name
+}
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -36,6 +62,11 @@ resource "aws_lambda_function" "api_backend_lambda" {
   role          = aws_iam_role.iam_for_backend_lambda.arn
   package_type  = "Image"
 
-  # uncomment after docker push 
+  # uncomment after docker push
   image_uri = "${aws_ecr_repository.lambda_image.repository_url}:latest"
+}
+
+resource "aws_lambda_function_url" "api_backend_lambda" {
+  function_name      = aws_lambda_function.api_backend_lambda.function_name
+  authorization_type = "NONE"
 }

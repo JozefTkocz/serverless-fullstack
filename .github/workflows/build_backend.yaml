@@ -3,22 +3,23 @@ env:
 
 name: Build Backend
 run-name: backend-build-${{ github.actor }}
-on: [push]
+on:
+  pull_request:
+    paths:
+      - lambdas/**
+      - .github/**
 jobs:
   Lint:
     runs-on:
       ubuntu-latest
     defaults:
+      # todo: DRY this to work with multiple lambdas
       run:
-        working-directory: ./lambdas
+        working-directory: ./lambdas/backend_api
     steps:
     -
       name: checkout
       uses: actions/checkout@v4
-    - name: Terraform fmt
-      uses: dflook/terraform-fmt-check@v1
-      with:
-        path: ./terraform
     -
       name: Set up Python
       id: setup-python
@@ -32,15 +33,47 @@ jobs:
       name: install dependencies
       run: poetry install --no-interaction
     -
-      name: lint
-      run: |
-        poetry run ruff check
-        poetry run ruff format
-        poetry run mypy .
+      name: Python lint
+      run: poetry run ruff check
+    -
+      name: Python format check
+      run : poetry run ruff format
+
+  Test:
+    needs: Lint
+    strategy:
+      matrix:
+        lambda_name: ["backend_api", "dummy_lambda"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lambdas/${{matrix.lambda_name}}
+    steps:
+      -
+        name: checkout
+        uses: actions/checkout@v4
+      -
+        name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      -
+        name: Install Poetry
+        uses: snok/install-poetry@v1
+      -
+        name: install dependencies
+        run: poetry install --no-interaction
+      -
+        name: Type Check
+        run: poetry run mypy .
+      -
+        name: Unit Test
+        run: poetry run pytest .
 
   DeployStaging:
-    if:
-    needs: Lint
+    needs:
+      - Test
     strategy:
       matrix:
         lambda_name: ["backend_api", "dummy_lambda"]
