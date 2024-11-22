@@ -12,9 +12,8 @@ import jwt
 
 import datetime as dt
 
-from aws_lambda_powertools.event_handler.exceptions import (
-    UnauthorizedError,
-)
+from lambdas.backend_api.dynamodb.users import User
+from lambdas.backend_api.middleware.auth import authenticated_user
 
 tracer = Tracer()
 router = Router()
@@ -164,18 +163,10 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
 
 @router.get("/check-login")
 @tracer.capture_method
+@authenticated_user
 def refresh_login() -> SessionInfo:
-    headers = router.current_event.headers
-
-    if not (token_string := headers.get("auth_token")):
-        raise UnauthorizedError("Unauthorized")
-
-    token = AuthTokenService.decode_token(token_string)
-    current_user = users_table.get(token.email)
-
-    if not current_user:
-        raise UnauthorizedError("Unauthorized")
-
+    print(router.current_event)
+    current_user: User = router.current_event["current_user"]
     return SessionInfo(
         email=current_user.email,
         token_expires=current_user.auth_token_expires,
