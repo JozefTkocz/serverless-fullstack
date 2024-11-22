@@ -12,8 +12,8 @@ import jwt
 
 import datetime as dt
 
-from lambdas.backend_api.dynamodb.users import User
-from lambdas.backend_api.middleware.auth import authenticated_user
+from dynamodb.users import User
+from middleware.auth import authenticated_user
 
 tracer = Tracer()
 router = Router()

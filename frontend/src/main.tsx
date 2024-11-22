@@ -78,6 +78,6 @@ if (!rootElement.innerHTML) {
           <RouterProvider router={router} />
         </CurrentUserProvider>
       </QueryClientProvider>
-    </StrictMode>
+    </StrictMode>,
   );
 }
