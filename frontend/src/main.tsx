@@ -7,7 +7,6 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
-import { AUTH_TOKEN_KEY } from "./features/login";
 import { apiClient } from "./api/client";
 
 type CurrentUser = {
@@ -35,8 +34,7 @@ export const CurrentUserProvider = ({
   });
 
   const fetchCurrentUser = async () => {
-    const token = window.localStorage.getItem(AUTH_TOKEN_KEY);
-    const response = await apiClient.checkLogin(token || "");
+    const response = await apiClient.checkLogin();
     console.log(response);
     setCurrentUser({ email: "logged in", token: "good" });
   };
@@ -80,6 +78,6 @@ if (!rootElement.innerHTML) {
           <RouterProvider router={router} />
         </QueryClientProvider>
       </CurrentUserProvider>
-    </StrictMode>,
+    </StrictMode>
   );
 }

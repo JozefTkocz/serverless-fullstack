@@ -137,10 +137,11 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
 @tracer.capture_method
 def refresh_login() -> bool:
     headers = router.current_event.headers
+    print(router.current_event)
     print(headers)
     print(
         jwt.decode(
-            headers["Auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
+            headers["auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
         )
     )
     return True

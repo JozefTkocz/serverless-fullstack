@@ -2,16 +2,16 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 // import ".././App.css";
 import { Box } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../api/client";
+// import { useQuery } from "@tanstack/react-query";
+// import { apiClient } from "../api/client";
 import { useCurrentUser } from "../main";
 
 export const Route = createRootRoute({
   component: () => {
-    const { isPending } = useQuery({
-      queryKey: ["health"],
-      queryFn: apiClient.healthCheck,
-    });
+    // const { isPending } = useQuery({
+    //   queryKey: ["health"],
+    //   queryFn: apiClient.healthCheck,
+    // });
 
     const { currentUser, fetchCurrentUser } = useCurrentUser();
 
@@ -34,7 +34,6 @@ export const Route = createRootRoute({
           <Link to="/login" className="[&.active]:font-bold">
             Login
           </Link>
-          {isPending && "Loading"}
         </Box>
         <Outlet />
         <TanStackRouterDevtools />
