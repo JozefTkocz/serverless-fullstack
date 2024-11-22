@@ -55,8 +55,8 @@ initialise_all_ecrs:
 
 outputs_to_env:
 	cd $(TERRAFORM_DIR) && \
-	terraform output >> ../lambdas/resources.env && \
-	terraform output >> ../frontend/.env
+	terraform output > ../lambdas/resources.env && \
+	terraform output > ../frontend/.env
 
 # =============================================================================
 # Docker

@@ -31,14 +31,6 @@ module "backend_api" {
   lambda_name = "backend_api"
 }
 
-module "dummy_lambda" {
-  source = "./lambda"
-
-  app_name    = "tumpr"
-  env         = terraform.workspace
-  lambda_name = "dummy_lambda"
-}
-
 resource "aws_dynamodb_table" "users" {
   // todo: staging and production tables
   name         = "Users"
