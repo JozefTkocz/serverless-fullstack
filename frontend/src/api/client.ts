@@ -56,7 +56,9 @@ class ApiClient {
 
   async checkLogin(): Promise<boolean> {
     this.setAuthToken();
-    const result = await this.client.get("/auth/check-login");
+    const result = await this.client.get("/auth/check-login", {
+      headers: { auth_token: "token" },
+    });
     console.log(result);
     return result.data;
   }

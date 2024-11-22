@@ -140,7 +140,7 @@ def refresh_login() -> bool:
     print(headers)
     print(
         jwt.decode(
-            headers["auth-token"], dynamic_config.jwt_secret, algorithms=["HS256"]
+            headers["Auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
         )
     )
     return True
