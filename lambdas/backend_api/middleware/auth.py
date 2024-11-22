@@ -23,7 +23,7 @@ def get_current_user(
 
     token = AuthTokenService.decode_token(token_string)
     current_user = users_table.get(token.email)
-
+    print(current_user)
     if not current_user:
         raise UnauthorizedError("Unauthorized")
 

@@ -32,4 +32,5 @@ class AuthTokenService:
 
     @staticmethod
     def decode_token(token_str: str) -> SessionToken:
-        return jwt.decode(token_str, dynamic_config.jwt_secret, algorithms=["HS256"])
+        token = jwt.decode(token_str, dynamic_config.jwt_secret, algorithms=["HS256"])
+        return SessionToken.model_validate(token)
