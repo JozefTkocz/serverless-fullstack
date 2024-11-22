@@ -1,8 +1,9 @@
-import { TextField } from "@mui/material";
+import { Link as MuiLink, TextField } from "@mui/material";
 import { useState } from "react";
 import { apiClient } from "../api/client";
 import { Typography } from "@mui/material";
 import { DebouncedButton } from "../components/DebouncedButton";
+import { Link } from "@tanstack/react-router";
 
 enum LoginState {
   NeedsEmail,
@@ -84,7 +85,7 @@ function EmailInput({
   return (
     <>
       <Typography variant="body1" gutterBottom>
-        Enter some stuff in here.
+        Enter your email address to request a passcode
       </Typography>
       <TextField
         id="standard-basic"
@@ -93,7 +94,7 @@ function EmailInput({
         onChange={(e) => setInputText(e.target.value)}
       />
       <DebouncedButton variant="contained" onClick={() => handleSubmit()}>
-        Click me!
+        Request Password
       </DebouncedButton>
     </>
   );
@@ -105,9 +106,12 @@ function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
     setState(LoginState.NeedsAuth);
   };
   return (
-    <DebouncedButton variant="contained" onClick={requestOtp}>
-      Get Login Code
-    </DebouncedButton>
+    <>
+      <Typography>Accept the email subscription</Typography>
+      <DebouncedButton variant="contained" onClick={requestOtp}>
+        Get Login Code
+      </DebouncedButton>
+    </>
   );
 }
 
@@ -144,11 +148,16 @@ function EnterPasscode({
 }
 
 function Success(_: StateUpdater<LoginState>) {
-  console.log("success");
-  return <p>Success</p>;
+  const pageContent = (
+    <>
+      <p>You are now logged in</p>
+      <Link href="/">Return Home</Link>
+    </>
+  );
+  return pageContent;
 }
 
 function Failed(_: StateUpdater<LoginState>) {
-  console.log("failed");
-  return <p>Failure</p>;
+  <MuiLink href="https://github.com/JozefTkocz/serverless-fullstack/issues"></MuiLink>;
+  return <p>Login Failed! Please raise an issue on GitHub</p>;
 }

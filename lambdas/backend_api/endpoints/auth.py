@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 import random
 import string
+from http import HTTPStatus
 
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler.api_gateway import Router
+from aws_lambda_powertools.event_handler import Response, content_types
 from config import users_table, email_client, dynamic_config
 import jwt
 
@@ -81,28 +83,29 @@ def request_otp(email: Email) -> bool:
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> AuthResponse:
+def login(credentials: OtpCredentials) -> Response[AuthResponse]:
     now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
 
     user = users_table.get(email=credentials.email)
 
-    if not user:
-        logger.info(f"User {credentials.email} not found")
-        return AuthResponse(
+    invalid_login_response = Response(
+        status_code=HTTPStatus.FORBIDDEN,
+        content_type=content_types.APPLICATION_JSON,
+        body=AuthResponse(
             auth_token="",
             session_token=SessionInfo(
                 email=credentials.email, message="You are not logged in!"
             ),
-        )
+        ),
+    )
+
+    if not user:
+        logger.info(f"User {credentials.email} not found")
+        return invalid_login_response
 
     if user.otp != credentials.otp or now > user.otp_expires:
         logger.info(f"User {credentials.email} attempted login with invalid OTP")
-        return AuthResponse(
-            auth_token="",
-            session_token=SessionInfo(
-                email=user.email, message="You are not logged in!"
-            ),
-        )
+        return invalid_login_response
 
     # Figure out how to set JWT auth cookie
     # Invalidate the OTP now it has been used
@@ -120,7 +123,14 @@ def login(credentials: OtpCredentials) -> AuthResponse:
     encoded_jwt = jwt.encode(
         token_payload.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
     )
-    return AuthResponse(auth_token=encoded_jwt, session_token=session_token)
+    return Response(
+        status_code=HTTPStatus.ACCEPTED,
+        content_type=content_types.APPLICATION_JSON,
+        body=AuthResponse(
+            auth_token=encoded_jwt,
+            session_token=session_token,
+        ),
+    )
 
 
 @router.get("/check-login")
