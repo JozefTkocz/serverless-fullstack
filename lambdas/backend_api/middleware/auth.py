@@ -1,8 +1,3 @@
-from typing import Callable
-
-from aws_lambda_powertools.middleware_factory import lambda_handler_decorator
-from aws_lambda_powertools.utilities.typing import LambdaContext
-
 from aws_lambda_powertools.event_handler.exceptions import (
     UnauthorizedError,
 )
@@ -11,20 +6,18 @@ from services.auth import AuthTokenService
 
 from config import users_table
 
+from aws_lambda_powertools.event_handler import APIGatewayRestResolver, Response
+from aws_lambda_powertools.event_handler.middlewares import NextMiddleware
+
 
 # Middleware to check the user is authenticated and provide the current user
 # to the endpoint
-@lambda_handler_decorator
-def authenticated_user(
-    handler: Callable[[dict, LambdaContext], dict],
-    # Will be the lambda URL API call event
-    event: dict,
-    context: LambdaContext,
-) -> dict:
-    print("========")
+def get_current_user(
+    app: APIGatewayRestResolver, next_middleware: NextMiddleware
+) -> Response:
     print("in middleware")
-    headers: dict[str, str] = event["headers"]
-
+    headers: dict[str, str] = app.current_event.headers
+    print(headers)
     if not (token_string := headers.get("auth_token")):
         raise UnauthorizedError("Unauthorized")
 
@@ -34,6 +27,7 @@ def authenticated_user(
     if not current_user:
         raise UnauthorizedError("Unauthorized")
 
-    print(current_user)
-    event["current_user"] = current_user
-    return handler(event, context)
+    app.append_context(current_user=current_user)
+
+    # Get response from next middleware OR /todos route
+    return next_middleware(app)
