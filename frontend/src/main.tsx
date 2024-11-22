@@ -73,11 +73,11 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <CurrentUserProvider>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <CurrentUserProvider>
           <RouterProvider router={router} />
-        </QueryClientProvider>
-      </CurrentUserProvider>
+        </CurrentUserProvider>
+      </QueryClientProvider>
     </StrictMode>
   );
 }

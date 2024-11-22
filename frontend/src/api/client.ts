@@ -19,8 +19,9 @@ class ApiClient {
   }
 
   setAuthToken() {
-    this.client.defaults.headers.common["auth-token"] =
-      localStorage.getItem(AUTH_TOKEN_KEY);
+    this.client.defaults.headers.common["auth_token"] =
+      window.localStorage.getItem(AUTH_TOKEN_KEY);
+    console.log(window.localStorage.getItem(AUTH_TOKEN_KEY));
   }
 
   async healthCheck() {
@@ -57,7 +58,7 @@ class ApiClient {
   async checkLogin(): Promise<boolean> {
     this.setAuthToken();
     const result = await this.client.get("/auth/check-login", {
-      headers: { auth_token: "token" },
+      headers: { auth_token: window.localStorage.getItem(AUTH_TOKEN_KEY) },
     });
     console.log(result);
     return result.data;

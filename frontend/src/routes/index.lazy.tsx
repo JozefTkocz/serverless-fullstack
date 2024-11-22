@@ -7,15 +7,13 @@ export const Route = createLazyFileRoute("/")({
 });
 
 function Index() {
-  console.log("cookies");
-  console.log(document.cookie);
   const onClick = async () => {
     apiClient.checkLogin();
   };
   return (
     <div className="p-2">
       <h3>Tumpr 2.0</h3>
-      <Button onClick={onClick}>Check the thing</Button>
+      <Button onClick={onClick}>Check login</Button>
     </div>
   );
 }

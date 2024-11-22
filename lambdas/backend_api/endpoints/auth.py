@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 import random
 import string
@@ -10,6 +11,10 @@ from config import users_table, email_client, dynamic_config
 import jwt
 
 import datetime as dt
+
+from aws_lambda_powertools.event_handler.exceptions import (
+    UnauthorizedError,
+)
 
 tracer = Tracer()
 router = Router()
@@ -30,18 +35,39 @@ class OtpCredentials(BaseModel):
 
 
 class SessionToken(BaseModel):
+    """
+    Data encoded into the JWT -not accessible to the user
+    """
+
     email: str
-    message: str
+    auth_token: str
 
 
 class SessionInfo(BaseModel):
+    """
+    Data sent back to the user after authenticating
+    """
+
     email: str
-    message: str
+    message: str = ""
+    token_expires: int | None = None
 
 
 class AuthResponse(BaseModel):
     auth_token: str
     session_token: SessionInfo
+
+
+class AuthTokenService:
+    @staticmethod
+    def encode_token(token: SessionToken) -> str:
+        return jwt.encode(
+            token.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
+        )
+
+    @staticmethod
+    def decode_token(token_str: str) -> SessionToken:
+        return jwt.decode(token_str, dynamic_config.jwt_secret, algorithms=["HS256"])
 
 
 @router.post("/register")
@@ -84,7 +110,8 @@ def request_otp(email: Email) -> bool:
 @router.post("/login")
 @tracer.capture_method
 def login(credentials: OtpCredentials) -> Response[AuthResponse]:
-    now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
+    now_datetime = dt.datetime.now(dt.timezone.utc)
+    now = int(round(now_datetime.timestamp()))
 
     user = users_table.get(email=credentials.email)
 
@@ -111,23 +138,25 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
     # Invalidate the OTP now it has been used
     user.otp = ""
     user.otp_expires = 0
+
+    user.auth_token = str(uuid.uuid4())
+    user.auth_token_expires = int(
+        round((now_datetime + dt.timedelta(days=30)).timestamp())
+    )
     users_table.update(user)
     logger.info(f"User {credentials.email} authorised, setting token")
 
     token_payload = SessionToken(
-        email=user.email, message=f"Hello {user.email} -this is secret!"
+        email=user.email,
+        auth_token=user.auth_token,
     )
-    session_token = SessionInfo(
-        email=user.email, message=f"Hello {user.email} -this isn't a secret!"
-    )
-    encoded_jwt = jwt.encode(
-        token_payload.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
-    )
+    session_token = SessionInfo(email=user.email, token_expires=user.auth_token_expires)
+
     return Response(
         status_code=HTTPStatus.ACCEPTED,
         content_type=content_types.APPLICATION_JSON,
         body=AuthResponse(
-            auth_token=encoded_jwt,
+            auth_token=AuthTokenService.encode_token(token_payload),
             session_token=session_token,
         ),
     )
@@ -135,16 +164,23 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
 
 @router.get("/check-login")
 @tracer.capture_method
-def refresh_login() -> bool:
+def refresh_login() -> SessionInfo:
     headers = router.current_event.headers
-    print(router.current_event)
-    print(headers)
-    print(
-        jwt.decode(
-            headers["auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
-        )
+
+    if not (token_string := headers.get("auth_token")):
+        raise UnauthorizedError("Unauthorized")
+
+    token = AuthTokenService.decode_token(token_string)
+    current_user = users_table.get(token.email)
+
+    if not current_user:
+        raise UnauthorizedError("Unauthorized")
+
+    return SessionInfo(
+        email=current_user.email,
+        token_expires=current_user.auth_token_expires,
+        message="You are logged in",
     )
-    return True
 
 
 @router.get("/logout")
