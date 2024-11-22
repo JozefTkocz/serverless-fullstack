@@ -5,6 +5,8 @@ import string
 from http import HTTPStatus
 
 from aws_lambda_powertools import Tracer, Logger
+from aws_lambda_powertools.utilities.typing import LambdaContext
+
 from aws_lambda_powertools.event_handler.api_gateway import Router
 from aws_lambda_powertools.event_handler import Response, content_types
 from config import users_table, email_client
@@ -135,7 +137,7 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
 @router.get("/check-login")
 @tracer.capture_method
 @authenticated_user
-def refresh_login() -> SessionInfo:
+def refresh_login(event: dict, context: LambdaContext) -> SessionInfo:
     print(router.current_event)
     current_user: User = router.current_event["current_user"]
     return SessionInfo(
