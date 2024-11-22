@@ -4,6 +4,7 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
+import { useCurrentUser } from "../main";
 
 export const Route = createRootRoute({
   component: () => {
@@ -11,6 +12,12 @@ export const Route = createRootRoute({
       queryKey: ["health"],
       queryFn: apiClient.healthCheck,
     });
+
+    const { currentUser, fetchCurrentUser } = useCurrentUser();
+
+    const user = fetchCurrentUser();
+    console.log("Hello", currentUser);
+    console.log(user);
     return (
       <>
         <Box

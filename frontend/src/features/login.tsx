@@ -1,4 +1,4 @@
-import { Link as MuiLink, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useState } from "react";
 import { apiClient } from "../api/client";
 import { Typography } from "@mui/material";
@@ -12,6 +12,8 @@ enum LoginState {
   Success,
   Failed,
 }
+
+export const AUTH_TOKEN_KEY = "auth_token";
 
 type StateUpdater<T> = (state: T) => void;
 
@@ -49,7 +51,7 @@ function Login({
       break;
     }
     case LoginState.NeedsPasscode: {
-      component = <RequestPasscode setState={setState} />;
+      component = <RequestPasscode userEmail={userEmail} setState={setState} />;
       break;
     }
     case LoginState.NeedsAuth: {
@@ -100,14 +102,23 @@ function EmailInput({
   );
 }
 
-function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
+function RequestPasscode({
+  userEmail,
+  setState,
+}: {
+  userEmail: string;
+  setState: StateUpdater<LoginState>;
+}) {
   const requestOtp = async () => {
-    await apiClient.requestOtp("jozeftkocz@gmail.com");
+    await apiClient.requestOtp(userEmail);
     setState(LoginState.NeedsAuth);
   };
   return (
     <>
-      <Typography>Accept the email subscription</Typography>
+      <Typography>
+        If you havent already done so, you will need to accept the email
+        subscription request from AWS SNS
+      </Typography>
       <DebouncedButton variant="contained" onClick={requestOtp}>
         Get Login Code
       </DebouncedButton>
@@ -124,9 +135,9 @@ function EnterPasscode({
 }) {
   const [passCode, setPassCode] = useState("");
   const sendLogin = async () => {
-    const loggedIn: boolean = await apiClient.login(email, passCode);
-    console.log(loggedIn);
-    if (loggedIn) {
+    const loginResponse = await apiClient.login(email, passCode);
+    if (loginResponse.auth_token) {
+      window.localStorage.setItem(AUTH_TOKEN_KEY, loginResponse.auth_token);
       setState(LoginState.Success);
     } else {
       setState(LoginState.Failed);
@@ -158,6 +169,9 @@ function Success(_: StateUpdater<LoginState>) {
 }
 
 function Failed(_: StateUpdater<LoginState>) {
-  <MuiLink href="https://github.com/JozefTkocz/serverless-fullstack/issues"></MuiLink>;
-  return <p>Login Failed! Please raise an issue on GitHub</p>;
+  return (
+    <>
+      <p>Login Failed!</p>
+    </>
+  );
 }

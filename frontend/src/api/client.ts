@@ -1,4 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosInstance } from "axios";
+import { AUTH_TOKEN_KEY } from "../features/login";
+
+type LoginResponse = {
+  auth_token: string;
+  session_token: { email: string; message: string };
+};
 
 class ApiClient {
   url: string;
@@ -9,8 +15,12 @@ class ApiClient {
     this.client = axios.create({
       baseURL: this.url,
     });
-    // this.client.defaults.headers.common["Authorization"] =
-    //   `Bearer ${localStorage.getItem("access_token")}`;
+    this.setAuthToken();
+  }
+
+  setAuthToken() {
+    this.client.defaults.headers.common["auth-token"] =
+      localStorage.getItem(AUTH_TOKEN_KEY);
   }
 
   async healthCheck() {
@@ -29,18 +39,26 @@ class ApiClient {
     const _ = await this.client.post("/auth/otp", { email: email });
   }
 
-  async login(email: string, passCode: string): Promise<boolean> {
-    const result = await this.client.post("/auth/login", {
-      email: email,
-      otp: passCode,
-    });
-    console.log(result.data);
-    return result.data;
+  async login(email: string, passCode: string): Promise<LoginResponse> {
+    try {
+      const result = await this.client.post("/auth/login", {
+        email: email,
+        otp: passCode,
+      });
+      return result.data;
+    } catch {
+      return {
+        auth_token: "",
+        session_token: { email: email, message: "Failed to login!" },
+      };
+    }
   }
 
-  async check() {
+  async checkLogin(): Promise<boolean> {
+    this.setAuthToken();
     const result = await this.client.get("/auth/check-login");
     console.log(result);
+    return result.data;
   }
 }
 

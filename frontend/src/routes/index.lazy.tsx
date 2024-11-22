@@ -10,7 +10,7 @@ function Index() {
   console.log("cookies");
   console.log(document.cookie);
   const onClick = async () => {
-    apiClient.check();
+    apiClient.checkLogin();
   };
   return (
     <div className="p-2">

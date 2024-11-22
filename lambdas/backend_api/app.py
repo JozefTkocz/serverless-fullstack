@@ -34,7 +34,7 @@ def handle_error(ex: Exception) -> Response[Error]:  # receives exception raised
     return Response(
         status_code=400,
         content_type=content_types.TEXT_PLAIN,
-        body=Error(reason="Something went wrong!"),
+        body=Error(reason="Something went wrong!").model_dump_json(),
     )
 
 
