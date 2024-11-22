@@ -55,7 +55,7 @@ initialise_all_ecrs:
 
 outputs_to_env:
 	cd $(TERRAFORM_DIR) && \
-	terraform output > ../lambdas/resources.env && \
+	terraform output > ../lambdas/backend_api/resources.env && \
 	terraform output > ../frontend/.env
 
 # =============================================================================

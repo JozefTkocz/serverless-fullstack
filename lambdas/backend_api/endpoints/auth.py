@@ -73,7 +73,9 @@ def request_otp(email: Email) -> bool:
 
     user = users_table.update(user)
     logger.info("Sending OTP email")
-    email_client.send_email(email=user.email, subject="TUMPR OTP", body=otp)
+    email_client.send_email(
+        email=user.email, subject="Your Tumpr Temporary Password", body=otp
+    )
     return True
 
 
