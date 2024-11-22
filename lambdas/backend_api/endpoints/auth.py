@@ -7,12 +7,14 @@ from http import HTTPStatus
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler.api_gateway import Router
 from aws_lambda_powertools.event_handler import Response, content_types
-from config import users_table, email_client, dynamic_config
-import jwt
+from config import users_table, email_client
 
 import datetime as dt
 
 from dynamodb.users import User
+from services.auth import SessionToken
+from services.auth import SessionInfo
+from services.auth import AuthTokenService
 from middleware.auth import authenticated_user
 
 tracer = Tracer()
@@ -33,40 +35,9 @@ class OtpCredentials(BaseModel):
     otp: str
 
 
-class SessionToken(BaseModel):
-    """
-    Data encoded into the JWT -not accessible to the user
-    """
-
-    email: str
-    auth_token: str
-
-
-class SessionInfo(BaseModel):
-    """
-    Data sent back to the user after authenticating
-    """
-
-    email: str
-    message: str = ""
-    token_expires: int | None = None
-
-
 class AuthResponse(BaseModel):
     auth_token: str
     session_token: SessionInfo
-
-
-class AuthTokenService:
-    @staticmethod
-    def encode_token(token: SessionToken) -> str:
-        return jwt.encode(
-            token.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
-        )
-
-    @staticmethod
-    def decode_token(token_str: str) -> SessionToken:
-        return jwt.decode(token_str, dynamic_config.jwt_secret, algorithms=["HS256"])
 
 
 @router.post("/register")

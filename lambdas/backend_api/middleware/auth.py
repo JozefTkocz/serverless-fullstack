@@ -7,7 +7,7 @@ from aws_lambda_powertools.event_handler.exceptions import (
     UnauthorizedError,
 )
 
-from endpoints.auth import AuthTokenService
+from services.auth import AuthTokenService
 
 from config import users_table
 
