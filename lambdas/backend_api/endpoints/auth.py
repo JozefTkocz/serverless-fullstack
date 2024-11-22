@@ -1,4 +1,3 @@
-from typing import Any
 import uuid
 from pydantic import BaseModel
 import random
@@ -136,9 +135,9 @@ def login(credentials: OtpCredentials) -> Response[AuthResponse]:
 @router.get("/check-login")
 @tracer.capture_method
 @authenticated_user
-def refresh_login(event: Any, context: Any, current_user: User) -> SessionInfo:
+def refresh_login() -> SessionInfo:
     print(router.current_event)
-    # current_user: User = router.current_event["current_user"]
+    current_user: User = router.current_event["current_user"]
     return SessionInfo(
         email=current_user.email,
         token_expires=current_user.auth_token_expires,
