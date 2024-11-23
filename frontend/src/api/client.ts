@@ -1,10 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosInstance } from "axios";
-import { AUTH_TOKEN_KEY } from "../features/login";
+import { CurrentUser } from "../routes/__root";
 
 type LoginResponse = {
   auth_token: string;
   session_token: { email: string; message: string };
 };
+
+export const AUTH_TOKEN_KEY = "auth_token";
 
 class ApiClient {
   url: string;
@@ -14,6 +16,7 @@ class ApiClient {
     this.url = process.env.BACKEND_API_URL || "";
     this.client = axios.create({
       baseURL: this.url,
+      validateStatus: () => true,
     });
     this.setAuthToken();
   }
@@ -21,7 +24,6 @@ class ApiClient {
   setAuthToken() {
     this.client.defaults.headers.common["auth_token"] =
       window.localStorage.getItem(AUTH_TOKEN_KEY);
-    console.log(window.localStorage.getItem(AUTH_TOKEN_KEY));
   }
 
   async healthCheck() {
@@ -55,12 +57,10 @@ class ApiClient {
     }
   }
 
-  async checkLogin(): Promise<boolean> {
-    this.setAuthToken();
+  async checkLogin(): Promise<CurrentUser> {
     const result = await this.client.get("/auth/check-login", {
       headers: { auth_token: window.localStorage.getItem(AUTH_TOKEN_KEY) },
     });
-    console.log(result);
     return result.data;
   }
 }

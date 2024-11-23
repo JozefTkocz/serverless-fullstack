@@ -2,16 +2,27 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 // import ".././App.css";
 import { Box } from "@mui/material";
-// import { useQuery } from "@tanstack/react-query";
-// import { apiClient } from "../api/client";
-// import { useCurrentUser } from "../main";
+import { createContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient, AUTH_TOKEN_KEY } from "../api/client";
+
+export type CurrentUser = {
+  email: string;
+  isLoggedIn: boolean;
+};
+
+export const CurrentUserContext = createContext<CurrentUser | undefined>({
+  email: "",
+  isLoggedIn: false,
+});
 
 export const Route = createRootRoute({
   component: () => {
-    // const { isPending } = useQuery({
-    //   queryKey: ["health"],
-    //   queryFn: apiClient.healthCheck,
-    // });
+    const { data: currentUser } = useQuery({
+      queryKey: [window.localStorage.getItem(AUTH_TOKEN_KEY)],
+      queryFn: () => apiClient.checkLogin(),
+    });
+
     return (
       <>
         <Box
@@ -29,7 +40,11 @@ export const Route = createRootRoute({
             Login
           </Link>
         </Box>
-        <Outlet />
+
+        <CurrentUserContext.Provider value={currentUser}>
+          <Outlet />
+        </CurrentUserContext.Provider>
+
         <TanStackRouterDevtools />
       </>
     );

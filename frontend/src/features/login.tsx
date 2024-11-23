@@ -1,6 +1,6 @@
 import { TextField } from "@mui/material";
 import { useState } from "react";
-import { apiClient } from "../api/client";
+import { apiClient, AUTH_TOKEN_KEY } from "../api/client";
 import { Typography } from "@mui/material";
 import { DebouncedButton } from "../components/DebouncedButton";
 import { Link } from "@tanstack/react-router";
@@ -12,8 +12,6 @@ enum LoginState {
   Success,
   Failed,
 }
-
-export const AUTH_TOKEN_KEY = "auth_token";
 
 type StateUpdater<T> = (state: T) => void;
 

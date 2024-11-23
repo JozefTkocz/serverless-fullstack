@@ -7,7 +7,7 @@ from dynamodb.users import UsersTable
 from email_client.client import EmailClient
 from object_store.object_store import ConfigRepo
 
-RESET_DYNAMIC_CONFIG = True
+RESET_DYNAMIC_CONFIG = False
 
 
 # Read in env vars
