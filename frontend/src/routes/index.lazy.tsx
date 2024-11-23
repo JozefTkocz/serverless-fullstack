@@ -1,21 +1,25 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { apiClient } from "../api/client";
+import { useContext } from "react";
+import { CurrentUserContext } from "./__root";
 
 export const Route = createLazyFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  console.log("cookies");
-  console.log(document.cookie);
   const onClick = async () => {
-    apiClient.check();
+    apiClient.checkLogin();
   };
+
+  const user = useContext(CurrentUserContext);
+  console.log("///");
+  console.log(user);
   return (
     <div className="p-2">
-      <h3>Tumpr 2.0</h3>
-      <Button onClick={onClick}>Check the thing</Button>
+      {user && <Typography>Hello {user.email}</Typography>}
+      <Button onClick={onClick}>Check login</Button>
     </div>
   );
 }

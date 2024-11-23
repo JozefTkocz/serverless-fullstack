@@ -1,4 +1,12 @@
 import axios, { AxiosRequestConfig, AxiosInstance } from "axios";
+import { CurrentUser } from "../routes/__root";
+
+type LoginResponse = {
+  auth_token: string;
+  session_token: { email: string; message: string };
+};
+
+export const AUTH_TOKEN_KEY = "auth_token";
 
 class ApiClient {
   url: string;
@@ -8,9 +16,14 @@ class ApiClient {
     this.url = process.env.BACKEND_API_URL || "";
     this.client = axios.create({
       baseURL: this.url,
+      validateStatus: () => true,
     });
-    // this.client.defaults.headers.common["Authorization"] =
-    //   `Bearer ${localStorage.getItem("access_token")}`;
+    this.setAuthToken();
+  }
+
+  setAuthToken() {
+    this.client.defaults.headers.common["auth_token"] =
+      window.localStorage.getItem(AUTH_TOKEN_KEY);
   }
 
   async healthCheck() {
@@ -29,18 +42,26 @@ class ApiClient {
     const _ = await this.client.post("/auth/otp", { email: email });
   }
 
-  async login(email: string, passCode: string): Promise<boolean> {
-    const result = await this.client.post("/auth/login", {
-      email: email,
-      otp: passCode,
-    });
-    console.log(result.data);
-    return result.data;
+  async login(email: string, passCode: string): Promise<LoginResponse> {
+    try {
+      const result = await this.client.post("/auth/login", {
+        email: email,
+        otp: passCode,
+      });
+      return result.data;
+    } catch {
+      return {
+        auth_token: "",
+        session_token: { email: email, message: "Failed to login!" },
+      };
+    }
   }
 
-  async check() {
-    const result = await this.client.get("/auth/check-login");
-    console.log(result);
+  async checkLogin(): Promise<CurrentUser> {
+    const result = await this.client.get("/auth/check-login", {
+      headers: { auth_token: window.localStorage.getItem(AUTH_TOKEN_KEY) },
+    });
+    return result.data;
   }
 }
 

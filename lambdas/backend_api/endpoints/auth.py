@@ -1,13 +1,22 @@
+import uuid
 from pydantic import BaseModel
 import random
 import string
+from http import HTTPStatus
 
 from aws_lambda_powertools import Tracer, Logger
+
 from aws_lambda_powertools.event_handler.api_gateway import Router
-from config import users_table, email_client, dynamic_config
-import jwt
+from aws_lambda_powertools.event_handler import Response, content_types
+from config import users_table, email_client
 
 import datetime as dt
+
+from dynamodb.users import User
+from services.auth import SessionToken
+from services.auth import SessionInfo
+from services.auth import AuthTokenService
+from middleware.auth import get_current_user
 
 tracer = Tracer()
 router = Router()
@@ -25,16 +34,6 @@ class Email(BaseModel):
 class OtpCredentials(BaseModel):
     email: str
     otp: str
-
-
-class SessionToken(BaseModel):
-    email: str
-    message: str
-
-
-class SessionInfo(BaseModel):
-    email: str
-    message: str
 
 
 class AuthResponse(BaseModel):
@@ -73,65 +72,78 @@ def request_otp(email: Email) -> bool:
 
     user = users_table.update(user)
     logger.info("Sending OTP email")
-    email_client.send_email(email=user.email, subject="TUMPR OTP", body=otp)
+    email_client.send_email(
+        email=user.email, subject="Your Tumpr Temporary Password", body=otp
+    )
     return True
 
 
 @router.post("/login")
 @tracer.capture_method
-def login(credentials: OtpCredentials) -> AuthResponse:
-    now = int(round(dt.datetime.now(dt.timezone.utc).timestamp()))
+def login(credentials: OtpCredentials) -> Response[AuthResponse]:
+    now_datetime = dt.datetime.now(dt.timezone.utc)
+    now = int(round(now_datetime.timestamp()))
 
     user = users_table.get(email=credentials.email)
 
-    if not user:
-        logger.info(f"User {credentials.email} not found")
-        return AuthResponse(
+    invalid_login_response = Response(
+        status_code=HTTPStatus.FORBIDDEN,
+        content_type=content_types.APPLICATION_JSON,
+        body=AuthResponse(
             auth_token="",
             session_token=SessionInfo(
                 email=credentials.email, message="You are not logged in!"
             ),
-        )
+        ),
+    )
+
+    if not user:
+        logger.info(f"User {credentials.email} not found")
+        return invalid_login_response
 
     if user.otp != credentials.otp or now > user.otp_expires:
         logger.info(f"User {credentials.email} attempted login with invalid OTP")
-        return AuthResponse(
-            auth_token="",
-            session_token=SessionInfo(
-                email=user.email, message="You are not logged in!"
-            ),
-        )
+        return invalid_login_response
 
     # Figure out how to set JWT auth cookie
     # Invalidate the OTP now it has been used
     user.otp = ""
     user.otp_expires = 0
+
+    user.auth_token = str(uuid.uuid4())
+    user.auth_token_expires = int(
+        round((now_datetime + dt.timedelta(days=30)).timestamp())
+    )
     users_table.update(user)
     logger.info(f"User {credentials.email} authorised, setting token")
 
     token_payload = SessionToken(
-        email=user.email, message=f"Hello {user.email} -this is secret!"
+        email=user.email,
+        auth_token=user.auth_token,
     )
-    session_token = SessionInfo(
-        email=user.email, message=f"Hello {user.email} -this isn't a secret!"
+    session_token = SessionInfo(email=user.email, token_expires=user.auth_token_expires)
+
+    return Response(
+        status_code=HTTPStatus.ACCEPTED,
+        content_type=content_types.APPLICATION_JSON,
+        body=AuthResponse(
+            auth_token=AuthTokenService.encode_token(token_payload),
+            session_token=session_token,
+        ),
     )
-    encoded_jwt = jwt.encode(
-        token_payload.model_dump(), dynamic_config.jwt_secret, algorithm="HS256"
-    )
-    return AuthResponse(auth_token=encoded_jwt, session_token=session_token)
 
 
-@router.get("/check-login")
+@router.get("/check-login", middlewares=[get_current_user])
 @tracer.capture_method
-def refresh_login() -> bool:
-    headers = router.current_event.headers
-    print(headers)
-    print(
-        jwt.decode(
-            headers["auth_token"], dynamic_config.jwt_secret, algorithms=["HS256"]
-        )
+def refresh_login() -> SessionInfo:
+    print("In the handler")
+    print(router.context)
+    current_user: User = router.context["current_user"]
+    return SessionInfo(
+        email=current_user.email,
+        token_expires=current_user.auth_token_expires,
+        message="You are logged in",
     )
-    return True
 
 
 @router.get("/logout")

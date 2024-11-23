@@ -17,7 +17,7 @@ import json
 
 tracer = Tracer()
 logger = Logger()
-cors_config = CORSConfig(allow_origin="*", max_age=300)
+cors_config = CORSConfig(allow_origin="*", allow_headers=["auth_token"], max_age=300)
 app = LambdaFunctionUrlResolver(cors=cors_config, enable_validation=True)
 
 app.include_router(endpoints.auth.router, prefix="/auth")
@@ -33,7 +33,7 @@ def handle_error(ex: Exception) -> Response[Error]:  # receives exception raised
 
     return Response(
         status_code=400,
-        content_type=content_types.TEXT_PLAIN,
+        content_type=content_types.APPLICATION_JSON,
         body=Error(reason="Something went wrong!"),
     )
 
@@ -43,16 +43,6 @@ def handle_error(ex: Exception) -> Response[Error]:  # receives exception raised
 @tracer.capture_method
 def health_check() -> bool:
     return True
-
-
-"""
-Todo:
- - JSON config file in S3 (for e.g. JWT secrets)
- - Logged in user from JWT
- - Use dynamodb for distributed lock on S3 objects
- - SQLite files in S3
- - Database migrations on SQLite
-"""
 
 
 @app.get("/script")

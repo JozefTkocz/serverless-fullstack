@@ -10,65 +10,52 @@ on:
       - .github/**
 jobs:
   Lint:
-    runs-on:
-      ubuntu-latest
+    runs-on: ubuntu-latest
     defaults:
       # todo: DRY this to work with multiple lambdas
       run:
         working-directory: ./lambdas/backend_api
     steps:
-    -
-      name: checkout
-      uses: actions/checkout@v4
-    -
-      name: Set up Python
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    -
-      name: Install Poetry
-      uses: snok/install-poetry@v1
-    -
-      name: install dependencies
-      run: poetry install --no-interaction
-    -
-      name: Python lint
-      run: poetry run ruff check
-    -
-      name: Python format check
-      run : poetry run ruff format
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: install dependencies
+        run: poetry install --no-interaction
+      - name: Python lint
+        run: poetry run ruff check
+      - name: Python format check
+        run: poetry run ruff format
 
   Test:
     needs: Lint
     strategy:
       matrix:
-        lambda_name: ["backend_api", "dummy_lambda"]
+        lambda_name: ["backend_api"]
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: lambdas/${{matrix.lambda_name}}
     steps:
-      -
-        name: checkout
+      - name: checkout
         uses: actions/checkout@v4
-      -
-        name: Set up Python
+      - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-      -
-        name: Install Poetry
+          python-version: "3.10"
+      - name: Install Poetry
         uses: snok/install-poetry@v1
-      -
-        name: install dependencies
+      - name: install dependencies
         run: poetry install --no-interaction
-      -
-        name: Type Check
+      - name: Type Check
         run: poetry run mypy .
-      -
-        name: Unit Test
+      - name: Unit Test
         run: poetry run pytest .
 
   DeployStaging:
@@ -76,21 +63,18 @@ jobs:
       - Test
     strategy:
       matrix:
-        lambda_name: ["backend_api", "dummy_lambda"]
+        lambda_name: ["backend_api"]
     runs-on: ubuntu-latest
     steps:
-      -
-        name: checkout
+      - name: checkout
         uses: actions/checkout@v4
-      -
-        name: Configure AWS Credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{vars.AWS_REGION}}
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      -
-        name: Build and push Docker image
+      - name: Build and push Docker image
         run: |
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
@@ -98,8 +82,7 @@ jobs:
             prefix=${{env.APP_NAME}}-staging- \
             lambda_name=${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
-      -
-        name: Update Lambda function
+      - name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
             prefix=${{env.APP_NAME}}-staging- \
@@ -115,21 +98,18 @@ jobs:
       - DeployStaging
     strategy:
       matrix:
-        lambda_name: ["backend_api", "dummy_lambda"]
+        lambda_name: ["backend_api"]
     runs-on: ubuntu-latest
     steps:
-      -
-        name: checkout
+      - name: checkout
         uses: actions/checkout@v4
-      -
-        name: Configure AWS Credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{vars.AWS_REGION}}
           aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      -
-        name: Build and push Docker image
+      - name: Build and push Docker image
         run: |
           make build_and_push_docker_image \
             region=${{vars.AWS_REGION}} \
@@ -137,8 +117,7 @@ jobs:
             prefix=${{env.APP_NAME}}-production- \
             lambda_name=${{matrix.lambda_name}} \
             build_no=${{github.run_id}}
-      -
-        name: Update Lambda function
+      - name: Update Lambda function
         run: |
           make update_lambda_with_latest_image \
             prefix=${{env.APP_NAME}}-production- \

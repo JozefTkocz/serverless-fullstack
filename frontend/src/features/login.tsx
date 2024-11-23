@@ -1,8 +1,9 @@
 import { TextField } from "@mui/material";
 import { useState } from "react";
-import { apiClient } from "../api/client";
+import { apiClient, AUTH_TOKEN_KEY } from "../api/client";
 import { Typography } from "@mui/material";
 import { DebouncedButton } from "../components/DebouncedButton";
+import { Link } from "@tanstack/react-router";
 
 enum LoginState {
   NeedsEmail,
@@ -48,7 +49,7 @@ function Login({
       break;
     }
     case LoginState.NeedsPasscode: {
-      component = <RequestPasscode setState={setState} />;
+      component = <RequestPasscode userEmail={userEmail} setState={setState} />;
       break;
     }
     case LoginState.NeedsAuth: {
@@ -84,7 +85,7 @@ function EmailInput({
   return (
     <>
       <Typography variant="body1" gutterBottom>
-        Enter some stuff in here.
+        Enter your email address to request a passcode
       </Typography>
       <TextField
         id="standard-basic"
@@ -93,21 +94,33 @@ function EmailInput({
         onChange={(e) => setInputText(e.target.value)}
       />
       <DebouncedButton variant="contained" onClick={() => handleSubmit()}>
-        Click me!
+        Request Password
       </DebouncedButton>
     </>
   );
 }
 
-function RequestPasscode({ setState }: { setState: StateUpdater<LoginState> }) {
+function RequestPasscode({
+  userEmail,
+  setState,
+}: {
+  userEmail: string;
+  setState: StateUpdater<LoginState>;
+}) {
   const requestOtp = async () => {
-    await apiClient.requestOtp("jozeftkocz@gmail.com");
+    await apiClient.requestOtp(userEmail);
     setState(LoginState.NeedsAuth);
   };
   return (
-    <DebouncedButton variant="contained" onClick={requestOtp}>
-      Get Login Code
-    </DebouncedButton>
+    <>
+      <Typography>
+        If you havent already done so, you will need to accept the email
+        subscription request from AWS SNS
+      </Typography>
+      <DebouncedButton variant="contained" onClick={requestOtp}>
+        Get Login Code
+      </DebouncedButton>
+    </>
   );
 }
 
@@ -120,9 +133,9 @@ function EnterPasscode({
 }) {
   const [passCode, setPassCode] = useState("");
   const sendLogin = async () => {
-    const loggedIn: boolean = await apiClient.login(email, passCode);
-    console.log(loggedIn);
-    if (loggedIn) {
+    const loginResponse = await apiClient.login(email, passCode);
+    if (loginResponse.auth_token) {
+      window.localStorage.setItem(AUTH_TOKEN_KEY, loginResponse.auth_token);
       setState(LoginState.Success);
     } else {
       setState(LoginState.Failed);
@@ -144,11 +157,19 @@ function EnterPasscode({
 }
 
 function Success(_: StateUpdater<LoginState>) {
-  console.log("success");
-  return <p>Success</p>;
+  const pageContent = (
+    <>
+      <p>You are now logged in</p>
+      <Link href="/">Return Home</Link>
+    </>
+  );
+  return pageContent;
 }
 
 function Failed(_: StateUpdater<LoginState>) {
-  console.log("failed");
-  return <p>Failure</p>;
+  return (
+    <>
+      <p>Login Failed!</p>
+    </>
+  );
 }
