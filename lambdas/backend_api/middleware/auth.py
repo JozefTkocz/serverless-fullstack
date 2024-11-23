@@ -3,7 +3,7 @@ from aws_lambda_powertools.event_handler.exceptions import (
 )
 
 from services.auth import AuthTokenService
-
+import datetime as dt
 from config import users_table
 
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver, Response
@@ -25,6 +25,12 @@ def get_current_user(
 
     if not current_user:
         raise UnauthorizedError("Unauthorized")
+
+    now_datetime = dt.datetime.now(dt.timezone.utc)
+    now = int(round(now_datetime.timestamp()))
+
+    if current_user.auth_token_expires < now:
+        raise UnauthorizedError("Token expired")
 
     if not (current_user.auth_token == provided_token.auth_token):
         raise UnauthorizedError("Unauthorized")
